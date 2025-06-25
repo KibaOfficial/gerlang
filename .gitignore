@@ -1,0 +1,30 @@
+# .gitignore für GerLang
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.spec
+
+# VSCode
+.vscode/
+
+# PyInstaller
+*.exe
+*.manifest
+*.spec
+!gerlc.spec
+
+# Sonstiges
+.DS_Store
+Thumbs.db
+private/
+
+# Python virtualenv
+.venv/
+venv/
+ENV/

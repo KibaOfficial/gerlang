@@ -1,0 +1,25 @@
+HINWEIS: Das ist ein Test
+// Dies ist ein Kommentar
+
+NIX haupt() {
+  DRUCKE("Dies ist ein Test");
+  GANZ zahl = 10;
+  JAIN wahrheit = JA;
+  KOMMA pi = 3.14159;
+  WENN (wahrheit) {
+    DRUCKE("Die Bedingung ist wahr.");
+  } SONST {
+    DRUCKE("Die Bedingung ist falsch.");
+  }
+  DRUCKE("Der Wert von pi ist: " + pi);
+  DRUCKE("Die Zahl ist: " + zahl);
+  FÜR (GANZ i = 0; i < 5; i = i + 1) {
+    DRUCKE("Aktueller Wert von i: " + i);
+  }
+  SOLANGE (zahl > 0) {
+    DRUCKE("Zahl ist: " + zahl);
+    zahl = zahl - 1;
+  }
+  DRUCKE("Test abgeschlossen.");
+  ZURÜCK 0;
+}
