@@ -127,6 +127,19 @@ class PrintStatement(Statement):
     def __repr__(self):
         return f"Print({self.expression})"
 
+class ArrayLiteralExpression(Expression):
+    def __init__(self, elements: List[Expression]):
+        self.elements = elements
+    def __repr__(self):
+        return f"ArrayLiteral({self.elements})"
+
+class ArrayAccessExpression(Expression):
+    def __init__(self, array: Expression, index: Expression):
+        self.array = array
+        self.index = index
+    def __repr__(self):
+        return f"ArrayAccess({self.array}[{self.index}])"
+
 class Program(ASTNode):
     def __init__(self, statements: List[Statement]):
         self.statements = statements
@@ -185,9 +198,17 @@ class Parser:
 
     def declaration(self) -> Optional[Statement]:
         try:
-            # Funktionsdefinition nur auf Top-Level
-            if self.current == 0 and (self.check("VOID") or self.check("INT") or self.check("FLOAT") or self.check("STRING") or self.check("BOOL")):
-                return self.function_declaration()
+            # Erkenne Funktionsdefinition ODER Variablendeklaration am Top-Level
+            if self.check("VOID") or self.check("INT") or self.check("FLOAT") or self.check("STRING") or self.check("BOOL") or self.check("ARRAY"):
+                # Nach Typ kommt Identifier
+                type_token = self.peek()
+                next_token = self.peek_next()
+                if next_token.type == "IDENTIFIER":
+                    third_token = self.tokens[self.current + 2] if self.current + 2 < len(self.tokens) else None
+                    if third_token and third_token.type == "LPAREN":
+                        return self.function_declaration()
+                    else:
+                        return self.variable_declaration()
             return self.statement()
         except ParseError as e:
             print(f"Parse error: {e}")
@@ -201,8 +222,9 @@ class Parser:
         parameters = []
         if not self.check("RPAREN"):
             while True:
-                param_type = self.advance().value  # GANZ, KOMMA, etc.
                 param_name = self.consume("IDENTIFIER", "Expected parameter name").value
+                self.consume("COLON", "Expected ':' after parameter name")
+                param_type = self.advance().value  # GANZ, KOMMA, etc.
                 parameters.append((param_type, param_name))
                 if not self.match("COMMA"):
                     break
@@ -237,7 +259,7 @@ class Parser:
         # NEW: Handle PRINT (was DRUCKE) statements
         if self.match("PRINT"):
             return self.print_statement()
-        if self.check("INT") or self.check("FLOAT") or self.check("STRING") or self.check("BOOL"):
+        if self.check("INT") or self.check("FLOAT") or self.check("STRING") or self.check("BOOL") or self.check("ARRAY"):
             return self.variable_declaration()
         if self.check("IDENTIFIER") and self.peek_next().type == "ASSIGN":
             return self.assignment_statement()
@@ -329,7 +351,23 @@ class Parser:
         return ExpressionStatement(expr)
 
     def expression(self) -> Expression:
-        return self.equality()
+        return self.oder_expression()
+
+    def oder_expression(self) -> Expression:
+        expr = self.und_expression()
+        while self.match("||", "ODER"):
+            operator = self.previous().value
+            right = self.und_expression()
+            expr = BinaryExpression(expr, operator, right)
+        return expr
+
+    def und_expression(self) -> Expression:
+        expr = self.equality()
+        while self.match("&&", "UND"):
+            operator = self.previous().value
+            right = self.equality()
+            expr = BinaryExpression(expr, operator, right)
+        return expr
 
     def equality(self) -> Expression:
         expr = self.comparison()
@@ -375,6 +413,10 @@ class Parser:
         while True:
             if self.match("LPAREN"):
                 expr = self.finish_call(expr)
+            elif self.match("LBRACKET"):  # Array-Zugriff
+                index = self.expression()
+                self.consume("RBRACKET", "Expected ']' after array index")
+                expr = ArrayAccessExpression(expr, index)
             else:
                 break
         return expr
@@ -389,6 +431,14 @@ class Parser:
         return CallExpression(callee, arguments)
 
     def primary(self) -> Expression:
+        if self.match("LBRACKET"):  # Array-Literal
+            elements = []
+            if not self.check("RBRACKET"):
+                elements.append(self.expression())
+                while self.match("COMMA"):
+                    elements.append(self.expression())
+            self.consume("RBRACKET", "Expected ']' after array literal")
+            return ArrayLiteralExpression(elements)
         if self.match("BOOL_LITERAL"):
             value = self.previous().value
             if value == "JA":

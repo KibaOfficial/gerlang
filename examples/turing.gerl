@@ -1,0 +1,15 @@
+// Turing-Vollständigkeitstest: Rekursion, Verzweigung, Variablen, Ausgabe
+GANZ fak(n: GANZ) {
+  WENN (n == 0) {
+    ZURÜCK 1;
+  } SONST {
+    ZURÜCK n * fak(n - 1);
+  }
+}
+
+NIX haupt() {
+  GANZ zahl = 5;
+  DRUCKE("Fakultät von " + zahl + ":");
+  DRUCKE(fak(zahl));
+  ZURÜCK 0;
+}

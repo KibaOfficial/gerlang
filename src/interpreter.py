@@ -6,7 +6,8 @@
 from parser import (
     Program, FunctionDeclaration, IfStatement, WhileStatement, ForStatement, BlockStatement, ReturnStatement,
     ExpressionStatement, VariableDeclaration, Expression, CallExpression, IdentifierExpression, LiteralExpression,
-    BinaryExpression, UnaryExpression, AssignmentStatement, PrintStatement
+    BinaryExpression, UnaryExpression, AssignmentStatement, PrintStatement,
+    ArrayLiteralExpression, ArrayAccessExpression
 )
 
 class Environment:
@@ -190,6 +191,14 @@ class Interpreter:
         """Evaluiert einen Ausdruck"""
         if isinstance(expr, LiteralExpression):
             return expr.value
+
+        elif isinstance(expr, ArrayLiteralExpression):
+            return [self.evaluate(el) for el in expr.elements]
+
+        elif isinstance(expr, ArrayAccessExpression):
+            array = self.evaluate(expr.array)
+            index = self.evaluate(expr.index)
+            return array[index]
 
         elif isinstance(expr, IdentifierExpression):
             return self.env.get(expr.name)

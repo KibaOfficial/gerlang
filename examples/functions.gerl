@@ -1,0 +1,11 @@
+HINWEIS: Eine struckturelle idee wie funcktionen aussehen könnten
+
+GANZ add(a: GANZ, b: GANZ) {
+  ZURÜCK a+b;
+}
+
+NIX haupt() {
+  DRUCKE("Hallo, Welt!");
+  DRUCKE(add(1,2));
+  ZURÜCK 0;
+}

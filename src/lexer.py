@@ -25,7 +25,8 @@ single_char_tokens = {
   '=': 'ASSIGN',
   '<': 'LT',
   '>': 'GT',
-  '!': 'NOT'
+  '!': 'NOT',
+  ':': 'COLON'  # <-- Doppelpunkt für Parameter
 }
 
 class Token(NamedTuple):

@@ -1,0 +1,36 @@
+HINWEIS: Test für wichtige TODO-Features in Gerlang
+
+// Test für dynamische Datenstrukturen (Listen/Arrays)
+KISTE zahlen = [1, 2, 3, 4, 5];
+
+GANZ summe(arr: KISTE) {
+  GANZ s = 0;
+  FÜR (GANZ i = 0; i < 5; i = i + 1) {
+    s = s + arr[i];
+  }
+  ZURÜCK s;
+}
+
+// Test für komplexe Bedingungen und logische Operatoren
+GANZ test_logik(a: GANZ, b: GANZ) {
+  WENN ((a > 0 UND b > 0) ODER (a == b)) {
+    ZURÜCK 1;
+  } SONST {
+    ZURÜCK 0;
+  }
+}
+
+// Test für Benutzereingabe (Platzhalter, da noch nicht implementiert)
+// GANZ eingabe = LESE();
+
+NIX haupt() {
+  DRUCKE("Summe der Zahlen:");
+  DRUCKE(summe(zahlen));
+  DRUCKE("Logik-Test (2,2):");
+  DRUCKE(test_logik(2,2));
+  DRUCKE("Logik-Test (2,-1):");
+  DRUCKE(test_logik(2,-1));
+  // DRUCKE("Benutzereingabe:");
+  // DRUCKE(eingabe);
+  ZURÜCK 0;
+}

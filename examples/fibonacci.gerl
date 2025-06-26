@@ -1,0 +1,14 @@
+HINWEIS: Fibonacci-Test für Funktionen und Rekursion
+
+GANZ fib(n: GANZ) {
+  WENN (n < 2) {
+    ZURÜCK n;
+  }
+  ZURÜCK fib(n-1) + fib(n-2);
+}
+
+NIX haupt() {
+  DRUCKE("Fibonacci(10):");
+  DRUCKE(fib(10));
+  ZURÜCK 0;
+}
