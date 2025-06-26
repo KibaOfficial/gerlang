@@ -116,7 +116,7 @@ def info_command():
         print(f"  {german:<12} -> {english}")
 
     print(f"\nDateierweiterung: .gerl")
-    print(f"Version: 0.1.0 (Entwicklung)")
+    print(f"Version: 1.0.0 (release)")
 
 def main():
     parser = argparse.ArgumentParser(
