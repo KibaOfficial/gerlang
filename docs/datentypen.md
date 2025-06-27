@@ -25,7 +25,8 @@ GerLang unterstützt verschiedene Datentypen, die jeweils einen bestimmten Werte
 ## Besonderheiten
 - Arrays (KISTE) können beliebige Typen enthalten.
 - Typisierung ist strikt.
+- Fehlerbehandlung und Eingabe sind Teil der Sprache.
 
 ---
 
-Weitere Details und Beispiele findest du in den Kapiteln zu Variablen und Arrays.
+Weitere Details und Beispiele findest du in den Kapiteln zu Variablen, Arrays und Fehlerbehandlung.

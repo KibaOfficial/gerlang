@@ -1,21 +1,32 @@
 # GerLang – Fehlerbehandlung
 
 ## Aktueller Stand
-- Fehlerbehandlung mit `VERSUCHE`/`FANGE` ist geplant, aber noch nicht implementiert.
-- Fehler werden aktuell als Ausnahmen angezeigt und beenden das Programm.
+- Fehlerbehandlung mit `VERSUCHE`/`FANGE` ist jetzt implementiert!
+- Fehler können im Code abgefangen und behandelt werden, das Programm läuft danach weiter.
 
-## Geplante Syntax
+## Syntax
 ```gerlang
-VERSUCHE {
+VERSUCHE() {
   // Code, der fehlschlagen könnte
-} FANGE (fehler) {
+} FANGE fehler {
   DRUCKE("Fehler: " + fehler);
 }
 ```
 
+## Beispiel
+```gerlang
+NIX beispiel() {
+  VERSUCHE() {
+    GANZ x = 5 / 0;
+  } FANGE fehler {
+    DRUCKE("Fehler abgefangen: " + fehler);
+  }
+}
+```
+
 ## Tipps
-- Code gut testen, um Fehler früh zu erkennen.
-- Kommentare nutzen, um auf mögliche Fehlerquellen hinzuweisen.
+- Fehler können als Variable im FANGE-Block verwendet werden.
+- Nutze Fehlerbehandlung für robustere Programme und besseres Debugging.
 
 ---
 

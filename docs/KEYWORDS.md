@@ -15,11 +15,11 @@
 | FÜR          | for                           |
 | DRUCKE       | Ausgabe (print)               |
 | ZURÜCK       | return                        |
-| MECKER       | Fehler werfen (geplant)       |
+| MECKER       | Fehler werfen                 |
 | ORDNUNG      | struct (geplant)              |
 | SCHAFFE      | Konstruktor (geplant)         |
-| VERSUCHE     | try (geplant)                 |
-| FANGE        | catch (geplant)               |
+| VERSUCHE     | try                           |
+| FANGE        | catch                         |
 
 **Literals:**
 - `JA`, `NEIN`, `VIELLEICHT` (True, False, None)

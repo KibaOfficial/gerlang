@@ -116,3 +116,57 @@ NIX haupt() {
   ZURÜCK 0;
 }
 ```
+
+---
+
+## 6. Funktionsdefinition mit Parametern und Rückgabewert
+```gerlang
+GANZ summe(a: GANZ, b: GANZ) {
+  ZURÜCK a + b;
+}
+```
+
+---
+
+## 7. Rekursive Funktion
+```gerlang
+GANZ fak(n: GANZ) {
+  WENN (n <= 1) {
+    ZURÜCK 1;
+  }
+  ZURÜCK n * fak(n - 1);
+}
+```
+
+---
+
+## 8. Fehlerbehandlung
+```gerlang
+NIX beispiel() {
+  VERSUCHE() {
+    GANZ x = 5 / 0;
+  } FANGE fehler {
+    DRUCKE("Fehler: " + fehler);
+  }
+}
+```
+
+---
+
+## 9. Benutzereingabe
+```gerlang
+WORT name = LESE();
+DRUCKE("Hallo, " + name);
+```
+
+---
+
+## 10. Arrays (KISTE)
+```gerlang
+KISTE zahlen = [1, 2, 3];
+DRUCKE(zahlen[1]); // Gibt 2 aus
+```
+
+---
+
+Weitere Beispiele findest du im Ordner `examples/`.

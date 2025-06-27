@@ -52,14 +52,28 @@ Oder als EXE (siehe Abschnitt 7):
 ## 5. Sprachbeispiel
 
 ```gerlang
-NIX haupt() {
-    FÜR (GANZ i = 0; i < 10; i = i + 1) {
-        WENN (i % 2 == 0) {
-            DRUCKE("Gerade Zahl: " + i);
-        } SONST {
-            DRUCKE("Ungerade Zahl: " + i);
-        }
+// Funktionsdefinition mit Parametern und Rückgabewert
+GANZ fak(n: GANZ) {
+    WENN (n <= 1) {
+        ZURÜCK 1;
+    } SONST {
+        ZURÜCK n * fak(n - 1);
     }
+}
+
+// Fehlerbehandlung mit VERSUCHE/FANGE
+NIX beispiel() {
+    VERSUCHE() {
+        GANZ x = 5 / 0;
+    } FANGE fehler {
+        DRUCKE("Fehler: " + fehler);
+    }
+}
+
+NIX haupt() {
+    DRUCKE("Fakultät von 5: " + fak(5));
+    beispiel();
+    ZURÜCK;
 }
 ```
 

@@ -121,15 +121,23 @@ FÜR (GANZ i = 0; i < 4; i = i + 1) {
 ## 9. Ein-/Ausgabe
 ```gerlang
 DRUCKE("Text");
-// LESE() für Benutzereingabe (in Entwicklung)
+WORT eingabe = LESE();
 ```
 - `DRUCKE(...)` gibt Werte aus.
-- `LESE()` liest Benutzereingabe (bald verfügbar).
+- `LESE()` liest Benutzereingabe.
 
 ---
 
 ## 10. Fehlerbehandlung
-- Fehlerbehandlung (z.B. `VERSUCHE`/`FANGE`) ist geplant, aber noch nicht implementiert.
+- Fehlerbehandlung mit `VERSUCHE`/`FANGE` ist implementiert.
+
+```gerlang
+VERSUCHE() {
+  GANZ x = 5 / 0;
+} FANGE fehler {
+  DRUCKE("Fehler abgefangen: " + fehler);
+}
+```
 
 ---
 

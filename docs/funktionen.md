@@ -3,6 +3,7 @@
 ## Definition
 - Syntax: `RÜCKGABETYP funktionsname(parameter: TYP, ...) { ... }`
 - Rückgabe mit `ZURÜCK wert;`
+- Parameter werden als `name: TYP` angegeben, mehrere durch Komma getrennt.
 
 Beispiel:
 ```gerlang
@@ -29,6 +30,17 @@ GANZ fakultaet(n: GANZ) {
     ZURÜCK 1;
   }
   ZURÜCK n * fakultaet(n-1);
+}
+```
+
+## Fehlerbehandlung in Funktionen
+```gerlang
+NIX beispiel() {
+  VERSUCHE() {
+    GANZ x = 5 / 0;
+  } FANGE fehler {
+    DRUCKE("Fehler: " + fehler);
+  }
 }
 ```
 
