@@ -18,6 +18,7 @@ Hilf mit, die erste Programmiersprache in reinem Deutsch zu erschaffen.
 Für uns. Für unser Land. Für eine Zukunft, in der wieder „Made in Germany“ über den Bildschirmen der Welt leuchtet.
 
 👉 Contribute jetzt! -> https://github.com/KibaOfficial/gerlang/contribute
+
 Zeig, dass Deutschland nicht nur zuschaut, sondern gestaltet.
 
 Für ein starkes digitales Vaterland. 🇩🇪✨
