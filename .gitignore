@@ -23,6 +23,7 @@ dist/
 .DS_Store
 Thumbs.db
 private/
+test/
 
 # Python virtualenv
 .venv/

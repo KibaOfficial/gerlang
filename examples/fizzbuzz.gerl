@@ -1,0 +1,23 @@
+HINWEIS: Fizzbuzz
+
+NIX fizzbuzz(n: GANZ) {
+  FÜR (GANZ i = 1; i <= n; i = i + 1) {
+    WENN (i % 3 == 0) {
+      WENN (i % 5 == 0) {
+        DRUCKE("FizzBuzz");
+      } SONST {
+        DRUCKE("Fizz");
+      }
+    } SONST WENN (i % 5 == 0) {
+      DRUCKE("Buzz");
+    } SONST {
+      DRUCKE(i);
+    }
+  }
+}
+
+NIX haupt() {
+  GANZ n = 100; // Anzahl der Zahlen
+  fizzbuzz(n);
+  ZURÜCK;  
+}

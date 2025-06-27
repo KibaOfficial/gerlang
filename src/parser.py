@@ -146,6 +146,15 @@ class Program(ASTNode):
     def __repr__(self):
         return f"Program({len(self.statements)} statements)"
 
+# NEW: TryCatchStatement for error handling
+class TryCatchStatement(Statement):
+    def __init__(self, try_block, catch_var, catch_block):
+        self.try_block = try_block  # BlockStatement
+        self.catch_var = catch_var  # Optional[str]
+        self.catch_block = catch_block  # BlockStatement
+    def __repr__(self):
+        return f"TryCatch(try={self.try_block}, catch_var={self.catch_var}, catch={self.catch_block})"
+
 # ===== PARSER =====
 
 class ParseError(Exception):
@@ -256,9 +265,10 @@ class Parser:
             return self.return_statement()
         if self.match("LBRACE"):
             return self.block_statement()
-        # NEW: Handle PRINT (was DRUCKE) statements
         if self.match("PRINT"):
             return self.print_statement()
+        if self.match("TRY"):  # VERSUCHE
+            return self.try_catch_statement()
         if self.check("INT") or self.check("FLOAT") or self.check("STRING") or self.check("BOOL") or self.check("ARRAY"):
             return self.variable_declaration()
         if self.check("IDENTIFIER") and self.peek_next().type == "ASSIGN":
@@ -471,3 +481,18 @@ class Parser:
             if self.peek().type in ["IF", "FOR", "WHILE", "RETURN", "VOID", "INT", "FLOAT", "STRING", "BOOL", "PRINT"]:
                 return
             self.advance()
+
+    def try_catch_statement(self) -> TryCatchStatement:
+        self.consume("LPAREN", "Expected '(' after 'VERSUCHE'")
+        self.consume("RPAREN", "Expected ')' after 'VERSUCHE'")
+        try_block = self.statement()
+        catch_var = None
+        catch_block = None
+        if self.match("CATCH"):  # FANGE
+            if self.check("IDENTIFIER"):
+                catch_var = self.consume("IDENTIFIER", "Expected error variable after 'FANGE'").value
+            self.consume("LBRACE", "Expected '{' after 'FANGE'")
+            catch_block = self.block_statement()
+        else:
+            raise ParseError("Expected 'FANGE' after 'VERSUCHE'-Block")
+        return TryCatchStatement(try_block, catch_var, catch_block)

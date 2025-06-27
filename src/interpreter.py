@@ -7,7 +7,7 @@ from parser import (
     Program, FunctionDeclaration, IfStatement, WhileStatement, ForStatement, BlockStatement, ReturnStatement,
     ExpressionStatement, VariableDeclaration, Expression, CallExpression, IdentifierExpression, LiteralExpression,
     BinaryExpression, UnaryExpression, AssignmentStatement, PrintStatement,
-    ArrayLiteralExpression, ArrayAccessExpression
+    ArrayLiteralExpression, ArrayAccessExpression, TryCatchStatement
 )
 
 class Environment:
@@ -183,6 +183,23 @@ class Interpreter:
         elif isinstance(stmt, PrintStatement):
             value = self.evaluate(stmt.expression)
             print(value)
+
+        elif isinstance(stmt, TryCatchStatement):
+            try:
+                self.execute(stmt.try_block)
+            except Exception as e:
+                if stmt.catch_var:
+                    # Fehler-Variable im neuen Scope setzen
+                    catch_env = Environment(self.env)
+                    catch_env.define(stmt.catch_var, str(e))
+                    previous_env = self.env
+                    self.env = catch_env
+                    try:
+                        self.execute(stmt.catch_block)
+                    finally:
+                        self.env = previous_env
+                else:
+                    self.execute(stmt.catch_block)
 
         else:
             raise Exception(f"Unbekanntes Statement: {type(stmt)}")
