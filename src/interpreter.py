@@ -228,8 +228,8 @@ class Interpreter:
             # Importiere Funktionen/Variablen aus externer Datei
             module_path = stmt.module
             if not os.path.isabs(module_path):
-                module_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'examples', 'imports', module_path)
-                module_path = os.path.normpath(module_path)
+                # Relativ zum aktuellen Arbeitsverzeichnis auflösen
+                module_path = os.path.normpath(os.path.join(os.getcwd(), module_path))
             if not os.path.exists(module_path):
                 raise Exception(f"Import-Modul nicht gefunden: {stmt.module}")
             with open(module_path, encoding="utf-8") as f:
