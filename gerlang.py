@@ -17,7 +17,7 @@ from interpreter import Interpreter
 
 def print_banner():
     """Zeigt das GerLang Banner"""
-    print("🥨 GerLang - Die deutsche Programmiersprache")
+    print("GerLang - Die deutsche Programmiersprache")
     print("=" * 50)
 
 def lexer_command(file_path: str, verbose: bool = False):
@@ -125,7 +125,7 @@ def run_command(file_path: str):
 
 def repl_command():
     """Startet eine interaktive GerLang-Shell"""
-    print("🥨 GerLang REPL (Read-Eval-Print-Loop)")
+    print("GerLang REPL (Read-Eval-Print-Loop)")
     print("Gib 'ENDE' ein zum Beenden\n")
 
     def get_repl_tip(msg, user_input):
