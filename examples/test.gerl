@@ -21,5 +21,5 @@ NIX haupt() {
     zahl = zahl - 1;
   }
   DRUCKE("Test abgeschlossen.");
-  ZURÜCK 0;
+  ZURÜCK NIX;
 }

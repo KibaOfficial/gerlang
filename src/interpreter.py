@@ -7,7 +7,8 @@ from parser import (
     Program, FunctionDeclaration, IfStatement, WhileStatement, ForStatement, BlockStatement, ReturnStatement,
     ExpressionStatement, VariableDeclaration, Expression, CallExpression, IdentifierExpression, LiteralExpression,
     BinaryExpression, UnaryExpression, AssignmentStatement, PrintStatement,
-    ArrayLiteralExpression, ArrayAccessExpression, TryCatchStatement
+    ArrayLiteralExpression, ArrayAccessExpression, TryCatchStatement, PropertyAccessExpression, MethodCallExpression,
+    SetExpression
 )
 
 class Environment:
@@ -201,6 +202,23 @@ class Interpreter:
                 else:
                     self.execute(stmt.catch_block)
 
+        elif isinstance(stmt, SetExpression):
+            # Ziel kann ArrayAccessExpression, PropertyAccessExpression oder IdentifierExpression sein
+            value = self.evaluate(stmt.value)
+            target = stmt.target
+            if isinstance(target, ArrayAccessExpression):
+                array = self.evaluate(target.array)
+                index = self.evaluate(target.index)
+                array[index] = value
+            elif isinstance(target, PropertyAccessExpression):
+                obj = self.evaluate(target.object_expr)
+                prop = target.property_name
+                setattr(obj, prop, value)  # (Optional: für spätere Objekte)
+            elif isinstance(target, IdentifierExpression):
+                self.env.assign(target.name, value)
+            else:
+                raise Exception(f"Zuweisung an diesen Ausdruck nicht unterstützt: {type(target)}")
+
         else:
             raise Exception(f"Unbekanntes Statement: {type(stmt)}")
 
@@ -302,6 +320,35 @@ class Interpreter:
                     return func(*args)
                 else:
                     raise Exception("Ausdruck ist nicht aufrufbar")
+
+        elif isinstance(expr, PropertyAccessExpression):
+            obj = self.evaluate(expr.object_expr)
+            prop = expr.property_name
+            # Property-Dispatch für eingebaute Typen
+            if isinstance(obj, str) and prop == "LÄNGE":
+                return len(obj)
+            if isinstance(obj, list) and prop == "LÄNGE":
+                return len(obj)
+            raise Exception(f"Unbekannte Property '{prop}' für Typ {type(obj).__name__}")
+
+        elif isinstance(expr, MethodCallExpression):
+            obj = self.evaluate(expr.object_expr)
+            method = expr.method_name
+            args = [self.evaluate(arg) for arg in expr.arguments]
+            # Methoden-Dispatch für eingebaute Typen
+            if isinstance(obj, list):
+                if method == "HINZUFÜGEN":
+                    obj.insert(0, args[0])
+                    return None
+                if method == "ERWEITERN":
+                    obj.append(args[0])
+                    return None
+                if method == "LÄNGE":
+                    return len(obj)
+            if isinstance(obj, str):
+                if method == "LÄNGE":
+                    return len(obj)
+            raise Exception(f"Unbekannte Methode '{method}' für Typ {type(obj).__name__}")
 
         else:
             raise Exception(f"Unbekannter Ausdruck: {type(expr)}")

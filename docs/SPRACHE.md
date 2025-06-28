@@ -9,10 +9,12 @@
 6. Kontrollstrukturen
 7. Funktionen & Rückgabewerte
 8. Arrays (KISTE)
-9. Ein-/Ausgabe
-10. Fehlerbehandlung
-11. Beispiele
-12. Besonderheiten & Hinweise
+9. Methoden für Datentypen
+10. Mehrdimensionale Arrays
+11. Ein-/Ausgabe
+12. Fehlerbehandlung
+13. Beispiele
+14. Besonderheiten & Hinweise
 
 ---
 
@@ -51,9 +53,11 @@ KOMMA pi = 3.14;
 WORT name = "Max";
 JAIN wahr = JA;
 KISTE zahlen = [1, 2, 3];
+KISTE matrix = [[1,2],[3,4]];
 ```
 
-Variablen können überall im Code deklariert werden. Typen sind verpflichtend.
+- Zuweisung an Array-Elemente: `zahlen[1] = 42;`
+- Zuweisung an mehrdimensionale Arrays: `matrix[0][1] = 99;`
 
 ---
 
@@ -62,6 +66,7 @@ Variablen können überall im Code deklariert werden. Typen sind verpflichtend.
 - Vergleich: `==`, `!=`, `<`, `>`, `<=`, `>=`
 - Logisch: `UND`, `ODER`, `NICHT`
 - Array-Zugriff: `kiste[index]`
+- Methoden- und Property-Zugriff: `objekt.METHODE(...)`, `objekt.PROPERTY`
 
 ---
 
@@ -77,8 +82,8 @@ SOLANGE (Bedingung) {
   // ...
 }
 
-FÜR (GANZ i = 0; i < 10; i = i + 1) {
-  // ...
+FÜR (GANZ i = 0; i < zahlen.LÄNGE; i = i + 1) {
+  DRUCKE(zahlen[i]);
 }
 ```
 
@@ -86,83 +91,71 @@ FÜR (GANZ i = 0; i < 10; i = i + 1) {
 
 ## 7. Funktionen & Rückgabewerte
 ```gerlang
-GANZ addiere(a: GANZ, b: GANZ) {
+GANZ add(a: GANZ, b: GANZ) {
   ZURÜCK a + b;
 }
-
-NIX haupt() {
-  DRUCKE(addiere(2, 3));
-  ZURÜCK 0;
-}
 ```
-- Parameter mit Typ: `name: TYP`
-- Rückgabewert mit `ZURÜCK`.
-- Rekursion wird unterstützt.
 
 ---
 
 ## 8. Arrays (KISTE)
-```gerlang
-KISTE jahre = [2000, 2001, 2002, 2003];
-FÜR (GANZ i = 0; i < 4; i = i + 1) {
-  GANZ jahr = jahre[i];
-  WENN (jahr == 2003) {
-    DRUCKE(jahr + " Hier bin ich geboren");
-  } SONST {
-    DRUCKE(jahr);
-  }
-}
-```
-- Arrays sind nullbasiert.
-- Zugriff: `kiste[index]`
+- Arrays werden mit `KISTE` deklariert.
+- Mehrdimensionale Arrays sind möglich: `KISTE matrix = [[1,2],[3,4]];`
+- Zugriff: `kiste[index]`, `matrix[1][0]`
+- Methoden: siehe unten
 
 ---
 
-## 9. Ein-/Ausgabe
+## 9. Methoden für Datentypen
+- Für Strings (WORT):
+  - `wort.LÄNGE` – Länge des Strings
+- Für Arrays (KISTE):
+  - `kiste.LÄNGE` – Anzahl der Elemente
+  - `kiste.HINZUFÜGEN(wert)` – Fügt am Anfang ein
+  - `kiste.ERWEITERN(wert)` – Fügt am Ende an
+
+Beispiel:
 ```gerlang
-DRUCKE("Text");
-WORT eingabe = LESE();
-```
-- `DRUCKE(...)` gibt Werte aus.
-- `LESE()` liest Benutzereingabe.
-
----
-
-## 10. Fehlerbehandlung
-- Fehlerbehandlung mit `VERSUCHE`/`FANGE` ist implementiert.
-
-```gerlang
-VERSUCHE() {
-  GANZ x = 5 / 0;
-} FANGE fehler {
-  DRUCKE("Fehler abgefangen: " + fehler);
-}
+KISTE liste = [1,2];
+liste.HINZUFÜGEN(0); // [0,1,2]
+liste.ERWEITERN(3);  // [0,1,2,3]
+GANZ n = liste.LÄNGE; // n = 4
+WORT text = "Hallo";
+GANZ l = text.LÄNGE; // l = 5
 ```
 
 ---
 
-## 11. Beispiele
+## 10. Mehrdimensionale Arrays
+- Arrays können Arrays enthalten:
 ```gerlang
-GANZ fakultaet(n: GANZ) {
-  WENN (n < 2) {
-    ZURÜCK 1;
-  }
-  ZURÜCK n * fakultaet(n-1);
-}
-
-NIX haupt() {
-  DRUCKE(fakultaet(5));
-  ZURÜCK 0;
-}
+KISTE matrix = [[1,2],[3,4]];
+matrix[0][1] = 99;
 ```
 
 ---
 
-## 12. Besonderheiten & Hinweise
-- Alle Schlüsselwörter sind deutsch.
-- Typisierung ist strikt.
-- Arrays (KISTE) können beliebige Typen enthalten.
-- Siehe Beispielprogramme im `examples/`-Verzeichnis.
+## 11. Ein-/Ausgabe
+- `DRUCKE(...)` oder `ZEIGE(...)` für Ausgabe
+- `LESE()` für Benutzereingabe
+
+---
+
+## 12. Fehlerbehandlung
+- Mit `VERSUCHE { ... } FANGE { ... }` können Fehler abgefangen werden.
+
+---
+
+## 13. Beispiele
+Siehe `BEISPIELE.md` und die Beispielprogramme im Ordner `examples/`.
+
+---
+
+## 14. Besonderheiten & Hinweise
+- Methoden und Properties für Datentypen
+- Zuweisung an beliebige Ausdrücke (z.B. Array-Elemente)
+- Mehrdimensionale Arrays
+- Moderne, deutschsprachige Syntax
 
 ---
 

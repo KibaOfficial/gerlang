@@ -1,0 +1,15 @@
+NIX haupt() {
+  KISTE zahlen = [1, 2, 3, 4, 5];
+  WORT fehler = "Kein Fehler";
+  GANZ wordLength = fehler.LÄNGE; // LÄNGE ist eine Methode, die die Länge eines Wortes zurückgibt
+  DRUCKE("Länge des Wortes: " + wordLength);
+  GANZ numberLength = zahlen.LÄNGE; // LÄNGE ist eine Methode, die die Länge eines Arrays zurückgibt
+  DRUCKE("Länge des Arrays: " + numberLength);
+  GANZ neueNummer = 10;
+  zahlen.HINZUFÜGEN(neueNummer); // HINZUFÜGEN ist eine Methode, die eine Zahl am Anfang des Arrays hinzufügt
+  DRUCKE("Neues Array: " + zahlen);
+  GANZ neueNummer2 = 20;
+  zahlen.ERWEITERN(neueNummer2); // ERWEITERN ist eine Methode, die eine Zahl am Ende des Arrays hinzufügt
+  DRUCKE("Erweitertes Array: " + zahlen);
+  ZURÜCK;
+}

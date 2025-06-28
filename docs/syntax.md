@@ -8,6 +8,8 @@ Hier findest du eine ausführliche Beschreibung der grundlegenden Syntaxregeln v
 ## Anweisungen
 - Jede Anweisung endet mit einem Semikolon (`;`).
 - Mehrere Anweisungen können in einem Block `{ ... }` zusammengefasst werden.
+- Methoden- und Property-Zugriffe: `objekt.METHODE(...)`, `objekt.PROPERTY`
+- Zuweisung an Array-Elemente: `kiste[1] = 42;`, `matrix[0][1] = 99;`
 
 ## Kommentare
 - Einzeilige Kommentare: `// Kommentartext`
@@ -24,6 +26,16 @@ WENN (Bedingung) {
   GANZ x = 5;
   DRUCKE(x);
 }
+```
+
+## Methoden für Datentypen
+- Arrays (KISTE): `.LÄNGE`, `.HINZUFÜGEN(wert)`, `.ERWEITERN(wert)`
+- Strings (WORT): `.LÄNGE`
+- Beispiel:
+```gerlang
+KISTE liste = [1,2];
+liste.ERWEITERN(3);
+DRUCKE(liste.LÄNGE);
 ```
 
 ## Namenskonventionen

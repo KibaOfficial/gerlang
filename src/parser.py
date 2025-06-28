@@ -53,6 +53,21 @@ class CallExpression(Expression):
     def __repr__(self):
         return f"Call({self.function}, {self.arguments})"
 
+class PropertyAccessExpression(Expression):
+    def __init__(self, object_expr: Expression, property_name: str):
+        self.object_expr = object_expr
+        self.property_name = property_name
+    def __repr__(self):
+        return f"PropertyAccess({self.object_expr}.{self.property_name})"
+
+class MethodCallExpression(Expression):
+    def __init__(self, object_expr: Expression, method_name: str, arguments: List[Expression]):
+        self.object_expr = object_expr
+        self.method_name = method_name
+        self.arguments = arguments
+    def __repr__(self):
+        return f"MethodCall({self.object_expr}.{self.method_name}({self.arguments}))"
+
 class BlockStatement(Statement):
     def __init__(self, statements: List[Statement]):
         self.statements = statements
@@ -154,6 +169,14 @@ class TryCatchStatement(Statement):
         self.catch_block = catch_block  # BlockStatement
     def __repr__(self):
         return f"TryCatch(try={self.try_block}, catch_var={self.catch_var}, catch={self.catch_block})"
+
+# NEW: SetExpression for assignments to arbitrary expressions (e.g. array elements)
+class SetExpression(Statement):
+    def __init__(self, target: Expression, value: Expression):
+        self.target = target
+        self.value = value
+    def __repr__(self):
+        return f"Set({self.target} = {self.value})"
 
 # ===== PARSER =====
 
@@ -271,9 +294,14 @@ class Parser:
             return self.try_catch_statement()
         if self.check("INT") or self.check("FLOAT") or self.check("STRING") or self.check("BOOL") or self.check("ARRAY"):
             return self.variable_declaration()
-        if self.check("IDENTIFIER") and self.peek_next().type == "ASSIGN":
-            return self.assignment_statement()
-        return self.expression_statement()
+        # Assignment an beliebigen Ausdruck (z.B. Array-Element)
+        expr = self.expression()
+        if self.match("ASSIGN"):
+            value = self.expression()
+            self.consume("SEMICOLON", "Expected ';' after assignment")
+            return SetExpression(expr, value)
+        self.consume("SEMICOLON", "Expected ';' after expression")
+        return ExpressionStatement(expr)
 
     # NEW: Print statement parser
     def print_statement(self) -> PrintStatement:
@@ -421,7 +449,21 @@ class Parser:
     def call(self) -> Expression:
         expr = self.primary()
         while True:
-            if self.match("LPAREN"):
+            if self.match("DOT"):
+                method_or_property = self.consume("IDENTIFIER", "Expected property or method name after '.'").value
+                if self.match("LPAREN"):
+                    # Methodenaufruf: obj.METHODE(...)
+                    arguments = []
+                    if not self.check("RPAREN"):
+                        arguments.append(self.expression())
+                        while self.match("COMMA"):
+                            arguments.append(self.expression())
+                    self.consume("RPAREN", "Expected ')' after arguments")
+                    expr = MethodCallExpression(expr, method_or_property, arguments)
+                else:
+                    # Property-Access: obj.METHODE
+                    expr = PropertyAccessExpression(expr, method_or_property)
+            elif self.match("LPAREN"):
                 expr = self.finish_call(expr)
             elif self.match("LBRACKET"):  # Array-Zugriff
                 index = self.expression()

@@ -1,0 +1,83 @@
+HINWEIS: Rouge – Deutschland Edition in GerLang
+
+KISTE spielfeld = [
+  ["#", "#", "#", "#", "#", "#", "#", "#", "#", "#"],
+  ["#", ".", ".", ".", ".", "B", ".", ".", "T", ".", "#"],
+  ["#", ".", "#", ".", "#", ".", "#", ".", "#", ".", "#"],
+  ["#", ".", ".", ".", ".", ".", ".", ".", ".", ".", "#"],
+  ["#", ".", "T", ".", "#", ".", "B", ".", "#", ".", "#"],
+  ["#", ".", ".", ".", ".", "@", ".", ".", ".", ".", "#"],
+  ["#", "#", "#", "#", "#", "#", "#", "#", "#", "#"]
+];
+
+GANZ spieler_x = 5;
+GANZ spieler_y = 5;
+GANZ leben = 3;
+GANZ gold = 0;
+
+NIX zeige_spielfeld() {
+  FÜR (GANZ y = 0; y < 7; y = y + 1) {
+    WORT zeile = "";
+    FÜR (GANZ x = 0; x < 10; x = x + 1) {
+      zeile = zeile + spielfeld[y][x];
+    }
+    DRUCKE(zeile);
+  }
+}
+
+NIX zeige_status() {
+  DRUCKE("Leben: " + leben + " | Gold: " + gold);
+}
+
+NIX bewege_spieler(richtung: WORT) {
+  GANZ nx = spieler_x;
+  GANZ ny = spieler_y;
+  WENN (richtung == "oben") {
+    ny = ny - 1;
+  } SONST WENN (richtung == "unten") {
+    ny = ny + 1;
+  } SONST WENN (richtung == "links") {
+    nx = nx - 1;
+  } SONST WENN (richtung == "rechts") {
+    nx = nx + 1;
+  }
+  WENN (spielfeld[ny][nx] == "#") {
+    DRUCKE("Du läufst gegen die Berliner Mauer!");
+    ZURÜCK;
+  }
+  WENN (spielfeld[ny][nx] == "B") {
+    DRUCKE("Du findest eine Brezel und bekommst 1 Leben!");
+    leben = leben + 1;
+    spielfeld[ny][nx] = ".";
+  }
+  WENN (spielfeld[ny][nx] == "T") {
+    DRUCKE("Du findest einen Taler!");
+    gold = gold + 1;
+    spielfeld[ny][nx] = ".";
+  }
+  spielfeld[spieler_y][spieler_x] = ".";
+  spieler_x = nx;
+  spieler_y = ny;
+  spielfeld[spieler_y][spieler_x] = "@";
+}
+
+NIX haupt() {
+  DRUCKE("Willkommen zu Rouge – Deutschland Edition!");
+  WORT eingabe = "";
+  SOLANGE (eingabe != "ende" UND leben > 0) {
+    zeige_spielfeld();
+    zeige_status();
+    DRUCKE("Gib eine Richtung ein (oben, unten, links, rechts) oder 'ende':");
+    eingabe = LESE();
+    WENN (eingabe == "ende") {
+      DRUCKE("Spiel beendet.");
+      ZURÜCK;
+    }
+    bewege_spieler(eingabe);
+  }
+  WENN (leben <= 0) {
+    DRUCKE("Du bist leider Game Over! Versuchs nochmal mit mehr Brezeln.");
+  }
+  ZURÜCK;
+}
+

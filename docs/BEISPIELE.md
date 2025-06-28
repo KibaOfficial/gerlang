@@ -4,7 +4,38 @@ Hier findest du kommentierte Beispielprogramme für verschiedene Sprachfeatures.
 
 ---
 
-## 1. Fibonacci (Rekursion)
+## 1. Methoden für Datentypen (KISTE/WORT)
+```gerlang
+KISTE liste = [1,2];
+liste.HINZUFÜGEN(0); // liste = [0,1,2]
+liste.ERWEITERN(3);  // liste = [0,1,2,3]
+DRUCKE(liste.LÄNGE); // Ausgabe: 4
+
+WORT text = "Hallo Welt";
+DRUCKE(text.LÄNGE); // Ausgabe: 10
+```
+
+---
+
+## 2. Mehrdimensionale Arrays und Zuweisung an Array-Elemente
+```gerlang
+KISTE matrix = [[1,2],[3,4]];
+matrix[0][1] = 99;
+DRUCKE(matrix[0][1]); // Ausgabe: 99
+```
+
+---
+
+## 3. Zuweisung an beliebige Ausdrücke
+```gerlang
+KISTE zahlen = [1,2,3];
+zahlen[1] = 42;
+DRUCKE(zahlen); // Ausgabe: [1, 42, 3]
+```
+
+---
+
+## 4. Fibonacci (Rekursion)
 ```gerlang
 HINWEIS: Fibonacci-Test für Funktionen und Rekursion
 GANZ fib(n: GANZ) {
@@ -22,7 +53,7 @@ NIX haupt() {
 
 ---
 
-## 2. Funktionen und Ausgabe
+## 5. Funktionen und Ausgabe
 ```gerlang
 GANZ add(a: GANZ, b: GANZ) {
   ZURÜCK a+b;
@@ -36,7 +67,7 @@ NIX haupt() {
 
 ---
 
-## 3. Kontrollstrukturen und Variablen
+## 6. Kontrollstrukturen und Variablen
 ```gerlang
 NIX haupt() {
     DRUCKE("Hallo, Welt!");
@@ -61,7 +92,7 @@ NIX haupt() {
 
 ---
 
-## 4. Test für Arrays und Logik
+## 7. Test für Arrays und Logik
 ```gerlang
 KISTE zahlen = [1, 2, 3, 4, 5];
 GANZ summe(arr: KISTE) {
@@ -91,82 +122,4 @@ NIX haupt() {
 
 ---
 
-## 5. Einfache Ausgabe und Schleifen
-```gerlang
-NIX haupt() {
-  DRUCKE("Dies ist ein Test");
-  GANZ zahl = 10;
-  JAIN wahrheit = JA;
-  KOMMA pi = 3.14159;
-  WENN (wahrheit) {
-    DRUCKE("Die Bedingung ist wahr.");
-  } SONST {
-    DRUCKE("Die Bedingung ist falsch.");
-  }
-  DRUCKE("Der Wert von pi ist: " + pi);
-  DRUCKE("Die Zahl ist: " + zahl);
-  FÜR (GANZ i = 0; i < 5; i = i + 1) {
-    DRUCKE("Aktueller Wert von i: " + i);
-  }
-  SOLANGE (zahl > 0) {
-    DRUCKE("Zahl ist: " + zahl);
-    zahl = zahl - 1;
-  }
-  DRUCKE("Test abgeschlossen.");
-  ZURÜCK 0;
-}
-```
-
----
-
-## 6. Funktionsdefinition mit Parametern und Rückgabewert
-```gerlang
-GANZ summe(a: GANZ, b: GANZ) {
-  ZURÜCK a + b;
-}
-```
-
----
-
-## 7. Rekursive Funktion
-```gerlang
-GANZ fak(n: GANZ) {
-  WENN (n <= 1) {
-    ZURÜCK 1;
-  }
-  ZURÜCK n * fak(n - 1);
-}
-```
-
----
-
-## 8. Fehlerbehandlung
-```gerlang
-NIX beispiel() {
-  VERSUCHE() {
-    GANZ x = 5 / 0;
-  } FANGE fehler {
-    DRUCKE("Fehler: " + fehler);
-  }
-}
-```
-
----
-
-## 9. Benutzereingabe
-```gerlang
-WORT name = LESE();
-DRUCKE("Hallo, " + name);
-```
-
----
-
-## 10. Arrays (KISTE)
-```gerlang
-KISTE zahlen = [1, 2, 3];
-DRUCKE(zahlen[1]); // Gibt 2 aus
-```
-
----
-
-Weitere Beispiele findest du im Ordner `examples/`.
+Weitere Beispiele findest du in den Dateien `examples/` und im FAQ.
