@@ -1,11 +1,15 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 
+import os
+
+project_dir = os.path.abspath('.')
+
 a = Analysis(
     ['gerlang.py'],
-    pathex=['src'],
+    pathex=[project_dir, 'src'],
     binaries=[],
-    datas=[],
+    datas=[('examples', 'examples'), ('docs', 'docs')],
     hiddenimports=['lexer', 'parser', 'interpreter'],
     hookspath=[],
     hooksconfig={},

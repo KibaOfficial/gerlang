@@ -1,0 +1,7 @@
+GANZ addiere(a: GANZ, b: GANZ) {
+  ZURÜCK a + b;
+}
+
+GANZ zahlB = 10;
+
+GIBFREI addiere, zahlB;

@@ -7,7 +7,7 @@ GANZ fak(n: GANZ) {
   }
 }
 
-NIX haupt() {
+GANZ haupt() {
   GANZ zahl = 5;
   DRUCKE("Fakultät von " + zahl + ":");
   DRUCKE(fak(zahl));

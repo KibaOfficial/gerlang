@@ -23,7 +23,7 @@ GANZ test_logik(a: GANZ, b: GANZ) {
 // Test für Benutzereingabe (Platzhalter, da noch nicht implementiert)
 // GANZ eingabe = LESE();
 
-NIX haupt() {
+GANZ haupt() {
   DRUCKE("Summe der Zahlen:");
   DRUCKE(summe(zahlen));
   DRUCKE("Logik-Test (2,2):");

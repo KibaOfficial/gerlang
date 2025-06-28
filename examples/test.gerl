@@ -1,7 +1,7 @@
 HINWEIS: Das ist ein Test
 // Dies ist ein Kommentar
 
-NIX haupt() {
+GANZ haupt() {
   DRUCKE("Dies ist ein Test");
   GANZ zahl = 10;
   JAIN wahrheit = JA;
@@ -21,5 +21,5 @@ NIX haupt() {
     zahl = zahl - 1;
   }
   DRUCKE("Test abgeschlossen.");
-  ZURÜCK NIX;
+  ZURÜCK 0;
 }

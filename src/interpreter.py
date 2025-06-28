@@ -3,13 +3,15 @@
 # This software is released under the MIT License.
 # https://opensource.org/licenses/MIT
 
+import os
 from parser import (
     Program, FunctionDeclaration, IfStatement, WhileStatement, ForStatement, BlockStatement, ReturnStatement,
     ExpressionStatement, VariableDeclaration, Expression, CallExpression, IdentifierExpression, LiteralExpression,
     BinaryExpression, UnaryExpression, AssignmentStatement, PrintStatement,
     ArrayLiteralExpression, ArrayAccessExpression, TryCatchStatement, PropertyAccessExpression, MethodCallExpression,
-    SetExpression
+    SetExpression, ExportDeclaration, ImportDeclaration, ExportListDeclaration
 )
+from lexer import Lexer
 
 class Environment:
     def __init__(self, parent=None):
@@ -76,6 +78,9 @@ class Interpreter:
 
         # Falls HAUPT vorhanden ist, diese ausführen
         if "haupt" in self.functions:
+            haupt_func = self.functions["haupt"]
+            if getattr(haupt_func, "return_type", None) not in ("GANZ", "int", "INT"):
+                raise Exception("Die Funktion 'haupt' muss den Rückgabetyp GANZ (int) haben und einen Exit-Code zurückgeben!")
             return self.execute_function("haupt", [])
 
         return None
@@ -219,6 +224,64 @@ class Interpreter:
             else:
                 raise Exception(f"Zuweisung an diesen Ausdruck nicht unterstützt: {type(target)}")
 
+        elif isinstance(stmt, ImportDeclaration):
+            # Importiere Funktionen/Variablen aus externer Datei
+            module_path = stmt.module
+            if not os.path.isabs(module_path):
+                module_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'examples', 'imports', module_path)
+                module_path = os.path.normpath(module_path)
+            if not os.path.exists(module_path):
+                raise Exception(f"Import-Modul nicht gefunden: {stmt.module}")
+            with open(module_path, encoding="utf-8") as f:
+                code = f.read()
+            tokens = Lexer(code).tokenize()
+            from parser import Parser
+            parser = Parser(tokens)
+            mod_ast = parser.parse()
+            # Sammle alle ExportDeclaration und ExportListDeclaration
+            exports = {}
+            # 1. Einzelne Exporte
+            for s in mod_ast.statements:
+                if isinstance(s, ExportDeclaration):
+                    decl = s.declaration
+                    if isinstance(decl, FunctionDeclaration):
+                        exports[decl.name] = decl
+                    elif isinstance(decl, VariableDeclaration):
+                        exports[decl.name] = decl
+            # 2. Export-Listen (GIBFREI name1, name2;)
+            defined_names = {}
+            for s in mod_ast.statements:
+                if isinstance(s, FunctionDeclaration):
+                    defined_names[s.name] = s
+                elif isinstance(s, VariableDeclaration):
+                    defined_names[s.name] = s
+            for s in mod_ast.statements:
+                if isinstance(s, ExportListDeclaration):
+                    for name in s.names:
+                        if name in defined_names:
+                            exports[name] = defined_names[name]
+                        else:
+                            raise Exception(f"Exportierter Name '{name}' ist im Modul nicht definiert")
+            # Importiere nur die gewünschten Namen
+            for name in stmt.names:
+                if name in exports:
+                    decl = exports[name]
+                    if isinstance(decl, FunctionDeclaration):
+                        self.functions[name] = decl
+                    elif isinstance(decl, VariableDeclaration):
+                        value = self.evaluate(decl.initializer) if decl.initializer else None
+                        self.env.define(name, value)
+                    else:
+                        raise Exception(f"Exportierter Name '{name}' ist kein unterstützter Typ")
+                else:
+                    raise Exception(f"'{name}' ist nicht als exportiert in {stmt.module} deklariert")
+            return
+        elif isinstance(stmt, ExportDeclaration):
+            # Export-Statements werden zur Laufzeit ignoriert (Modul-Handling erfolgt beim Parsen/AST)
+            return
+        elif isinstance(stmt, ExportListDeclaration):
+            # Export-Listen werden zur Laufzeit ignoriert (nur für Modul-Analyse)
+            return
         else:
             raise Exception(f"Unbekanntes Statement: {type(stmt)}")
 

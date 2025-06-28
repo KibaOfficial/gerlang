@@ -178,6 +178,27 @@ class SetExpression(Statement):
     def __repr__(self):
         return f"Set({self.target} = {self.value})"
 
+# NEW: Export and Import declarations
+class ExportDeclaration(Statement):
+    def __init__(self, declaration: Statement):
+        self.declaration = declaration
+    def __repr__(self):
+        return f"Export({self.declaration})"
+
+class ImportDeclaration(Statement):
+    def __init__(self, names: List[str], module: str):
+        self.names = names  # Liste der importierten Namen
+        self.module = module  # Dateiname als String
+    def __repr__(self):
+        return f"Import({self.names} von {self.module})"
+
+# NEW: Export list declaration for multiple exports
+class ExportListDeclaration(Statement):
+    def __init__(self, names: list):
+        self.names = names
+    def __repr__(self):
+        return f"ExportList({self.names})"
+
 # ===== PARSER =====
 
 class ParseError(Exception):
@@ -229,23 +250,75 @@ class Parser:
         return Program(statements)
 
     def declaration(self) -> Optional[Statement]:
-        try:
-            # Erkenne Funktionsdefinition ODER Variablendeklaration am Top-Level
-            if self.check("VOID") or self.check("INT") or self.check("FLOAT") or self.check("STRING") or self.check("BOOL") or self.check("ARRAY"):
-                # Nach Typ kommt Identifier
-                type_token = self.peek()
-                next_token = self.peek_next()
-                if next_token.type == "IDENTIFIER":
-                    third_token = self.tokens[self.current + 2] if self.current + 2 < len(self.tokens) else None
-                    if third_token and third_token.type == "LPAREN":
-                        return self.function_declaration()
-                    else:
-                        return self.variable_declaration()
-            return self.statement()
-        except ParseError as e:
-            print(f"Parse error: {e}")
-            self.synchronize()
-            return None
+        # try/except entfernt, Fehler werden im Hauptprogramm behandelt
+        if self.match("EXPORT", "GIBFREI"):
+            return self.export_declaration()
+        if self.match("IMPORT", "HOLE"):
+            return self.import_declaration()
+        if self.check("VOID") or self.check("INT") or self.check("FLOAT") or self.check("STRING") or self.check("BOOL") or self.check("ARRAY"):
+            # Nach Typ kommt Identifier
+            type_token = self.peek()
+            next_token = self.peek_next()
+            if next_token.type == "IDENTIFIER":
+                third_token = self.tokens[self.current + 2] if self.current + 2 < len(self.tokens) else None
+                if third_token and third_token.type == "LPAREN":
+                    return self.function_declaration()
+                else:
+                    return self.variable_declaration()
+        return self.statement()
+
+    def export_declaration(self) -> ExportDeclaration:
+        # EXPORT oder GIBFREI wurde bereits konsumiert
+        # Variante 1: Funktions- oder Variablendeklaration
+        if self.check("VOID") or self.check("INT") or self.check("FLOAT") or self.check("STRING") or self.check("BOOL") or self.check("ARRAY"):
+            type_token = self.peek()
+            next_token = self.peek_next()
+            if next_token.type == "IDENTIFIER":
+                third_token = self.tokens[self.current + 2] if self.current + 2 < len(self.tokens) else None
+                if third_token and third_token.type == "LPAREN":
+                    decl = self.function_declaration()
+                else:
+                    decl = self.variable_declaration()
+                return ExportDeclaration(decl)
+        # Variante 2: GIBFREI name1, name2, ...;
+        if self.check("IDENTIFIER"):
+            names = [self.consume("IDENTIFIER", "Expected name to export").value]
+            while self.match("COMMA"):
+                if self.check("IDENTIFIER"):
+                    names.append(self.consume("IDENTIFIER", "Expected name to export").value)
+                else:
+                    raise ParseError("Expected name to export after ',' in export statement")
+            if self.check("SEMICOLON"):
+                self.advance()
+            elif not self.is_at_end() and self.peek().type != "EOF":
+                raise ParseError("Expected ';' after export statement")
+            return ExportListDeclaration(names)
+        raise ParseError("Expected function or variable declaration or name list after 'gibfrei'")
+
+    def import_declaration(self) -> ImportDeclaration:
+        # IMPORT oder HOLE wurde bereits konsumiert
+        names = []
+        # Akzeptiere beliebig viele IDENTIFIER, getrennt durch Kommas
+        if self.check("IDENTIFIER"):
+            names.append(self.consume("IDENTIFIER", "Expected name to import").value)
+            while self.match("COMMA"):
+                if self.check("IDENTIFIER"):
+                    names.append(self.consume("IDENTIFIER", "Expected name to import").value)
+                else:
+                    raise ParseError("Expected name to import after ',' in import statement")
+        else:
+            raise ParseError("Expected name to import after 'hole'")
+        self.consume("FROM", "Expected 'von' after import names")
+        if self.check("STRING_LITERAL"):
+            module = self.consume("STRING_LITERAL", "Expected module file name as string").value
+        else:
+            raise ParseError("Expected module file name as string after 'von'")
+        # Akzeptiere optionales Semikolon oder Zeilenende
+        if self.check("SEMICOLON"):
+            self.advance()
+        elif not self.is_at_end() and self.peek().type != "EOF":
+            raise ParseError("Expected ';' after import statement")
+        return ImportDeclaration(names, module)
 
     def function_declaration(self) -> FunctionDeclaration:
         return_type = self.advance().value  # NIX, GANZ, etc.
@@ -538,3 +611,16 @@ class Parser:
         else:
             raise ParseError("Expected 'FANGE' after 'VERSUCHE'-Block")
         return TryCatchStatement(try_block, catch_var, catch_block)
+
+if __name__ == "__main__":
+    import sys
+    from lexer import Lexer
+    if len(sys.argv) > 1 and sys.argv[1] == "ast":
+        # Beispiel: python parser.py ast examples/imports/main.gerl
+        filename = sys.argv[2]
+        with open(filename, encoding="utf-8") as f:
+            code = f.read()
+        tokens = Lexer(code).tokenize()
+        parser = Parser(tokens)
+        ast = parser.parse()
+        print(ast)

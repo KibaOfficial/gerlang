@@ -37,14 +37,13 @@ DRUCKE(zahlen); // Ausgabe: [1, 42, 3]
 
 ## 4. Fibonacci (Rekursion)
 ```gerlang
-HINWEIS: Fibonacci-Test für Funktionen und Rekursion
 GANZ fib(n: GANZ) {
   WENN (n < 2) {
     ZURÜCK n;
   }
   ZURÜCK fib(n-1) + fib(n-2);
 }
-NIX haupt() {
+GANZ haupt() {
   DRUCKE("Fibonacci(10):");
   DRUCKE(fib(10));
   ZURÜCK 0;
@@ -58,7 +57,7 @@ NIX haupt() {
 GANZ add(a: GANZ, b: GANZ) {
   ZURÜCK a+b;
 }
-NIX haupt() {
+GANZ haupt() {
   DRUCKE("Hallo, Welt!");
   DRUCKE(add(1,2));
   ZURÜCK 0;
@@ -69,7 +68,7 @@ NIX haupt() {
 
 ## 6. Kontrollstrukturen und Variablen
 ```gerlang
-NIX haupt() {
+GANZ haupt() {
     DRUCKE("Hallo, Welt!");
     GANZ zahl = 42;
     JAIN wahrheit = JA;
@@ -86,7 +85,7 @@ NIX haupt() {
         DRUCKE("Runterzählen: " + zahl);
         zahl = zahl - 1;
     }
-    ZURÜCK;
+    ZURÜCK 0;
 }
 ```
 
@@ -109,7 +108,7 @@ GANZ test_logik(a: GANZ, b: GANZ) {
     ZURÜCK 0;
   }
 }
-NIX haupt() {
+GANZ haupt() {
   DRUCKE("Summe der Zahlen:");
   DRUCKE(summe(zahlen));
   DRUCKE("Logik-Test (2,2):");

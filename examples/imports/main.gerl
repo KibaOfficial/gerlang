@@ -1,0 +1,8 @@
+HOLE addiere, zahlB VON "math.gerl";
+
+GANZ haupt() {
+  GANZ a = 5;
+  GANZ ergebnis = addiere(a, zahlB);
+  DRUCKE("Das Ergebnis der Addition ist: " + ergebnis);
+  ZURÜCK 0;
+}

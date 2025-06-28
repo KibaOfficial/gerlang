@@ -60,15 +60,61 @@ def run_command(file_path: str):
     """Führt eine GerLang-Datei aus (jetzt mit Parser & Interpreter!)"""
     print(f"🚀 Führe {file_path} aus...")
 
+    def get_humorous_tip(msg):
+        msg_lower = msg.lower()
+        if "unexpected token" in msg_lower:
+            return "Hinweis: Unerwartetes Token. Prüfe die Syntax an dieser Stelle."
+        if "expected ';'" in msg_lower or "expected '}'" in msg_lower or "block" in msg_lower:
+            return "Hinweis: Es fehlt vermutlich ein Semikolon oder eine schließende Klammer."
+        if "type" in msg_lower or "typ" in msg_lower:
+            return "Hinweis: Typfehler. Prüfe, ob die Typen der Variablen und Ausdrücke zusammenpassen."
+        if "function" in msg_lower or "funktionsaufruf" in msg_lower:
+            return "Hinweis: Funktionsaufruf oder -definition prüfen. Stimmen Name, Argumente und Klammern?"
+        if "assign" in msg_lower or "zuweisung" in msg_lower:
+            return "Hinweis: Zuweisung prüfen. Ist das '=' korrekt gesetzt?"
+        return "Hinweis: Prüfe die Syntax und den Kontext der Fehlermeldung."
+
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             source_code = f.read()
         lexer = Lexer(source_code)
         tokens = lexer.tokenize()
         parser = Parser(tokens)
-        program = parser.parse()
+        try:
+            program = parser.parse()
+        except Exception as e:
+            import traceback
+            tb = traceback.extract_tb(e.__traceback__)
+            token = getattr(e, 'token', None)
+            if hasattr(e, 'args') and e.args:
+                msg = e.args[0]
+            else:
+                msg = str(e)
+            import re
+            m = re.search(r'line (\d+)', msg)
+            line = int(m.group(1)) if m else '?'
+            col = getattr(token, 'column', '?') if token else '?'
+            code_lines = source_code.splitlines()
+            code_line = code_lines[line-1] if isinstance(line, int) and line != '?' and 1 <= line <= len(code_lines) else ''
+            marker = ' ' * (col-1 if isinstance(col, int) and col != '?' else 0) + '~~~ FEHLER! ~~~'
+            print(f"\n{file_path}:{line}:{col} - Fehler G42: {msg}")
+            print(f"\n{line} {code_line}")
+            print(f"   {marker}")
+            print(get_humorous_tip(msg))
+            sys.exit(2)
         interpreter = Interpreter()
-        interpreter.interpret(program)
+        try:
+            interpreter.interpret(program)
+        except Exception as e:
+            import traceback
+            msg = str(e)
+            tb = traceback.extract_tb(e.__traceback__)
+            # Versuche Zeile/Spalte zu finden (optional, falls Interpreter das liefert)
+            line = getattr(e, 'line', '?')
+            col = getattr(e, 'column', '?')
+            print(f"\n{file_path}:{line}:{col} - Laufzeitfehler: {msg}")
+            print("Tipp: Vielleicht hast du eine Variable vergessen, einen Typen verwechselt oder die Wurst zu früh gegessen.")
+            sys.exit(3)
         print("\n✅ Ausführung beendet!")
     except FileNotFoundError:
         print(f"❌ Fehler: Datei '{file_path}' nicht gefunden!")
@@ -81,6 +127,16 @@ def repl_command():
     """Startet eine interaktive GerLang-Shell"""
     print("🥨 GerLang REPL (Read-Eval-Print-Loop)")
     print("Gib 'ENDE' ein zum Beenden\n")
+
+    def get_repl_tip(msg, user_input):
+        msg_lower = msg.lower()
+        if "unexpected token" in msg_lower:
+            return "Hinweis: Unerwartetes Token. Prüfe die Syntax."
+        if "expected ';'" in msg_lower or "expected '}'" in msg_lower or "block" in msg_lower:
+            return "Hinweis: Es fehlt vermutlich ein Semikolon oder eine schließende Klammer."
+        if "type" in msg_lower or "typ" in msg_lower:
+            return "Hinweis: Typfehler. Prüfe die Typen deiner Variablen."
+        return "Hinweis: Prüfe die Syntax und den Kontext der Fehlermeldung."
 
     while True:
         try:
@@ -96,10 +152,28 @@ def repl_command():
             lexer = Lexer(user_input)
             tokens = lexer.tokenize()
             parser = Parser(tokens)
-            program = parser.parse()
+            try:
+                program = parser.parse()
+            except Exception as e:
+                import re
+                msg = str(e)
+                m = re.search(r'line (\d+)', msg)
+                line = int(m.group(1)) if m else 1
+                col = 1
+                code_line = user_input
+                marker = ' ' * (col-1) + '~~~ FEHLER! ~~~'
+                print(f"Fehler beim Parsen in Zeile {line}: {msg}")
+                print(f"{line} {code_line}")
+                print(f"   {marker}")
+                print(get_repl_tip(msg, user_input))
+                continue
             interpreter = Interpreter()
-            interpreter.interpret(program)
-
+            try:
+                interpreter.interpret(program)
+            except Exception as e:
+                msg = str(e)
+                print(f"Laufzeitfehler: {msg}")
+                print("Tipp: Vielleicht hilft ein Neustart oder ein Blick ins Handbuch.")
         except KeyboardInterrupt:
             print("\nAuf Wiedersehen! 👋")
             break
@@ -116,7 +190,7 @@ def info_command():
         print(f"  {german:<12} -> {english}")
 
     print(f"\nDateierweiterung: .gerl")
-    print(f"Version: 1.0.0 (release)")
+    print(f"Version: 3.0.0 (release)")
 
 def main():
     parser = argparse.ArgumentParser(

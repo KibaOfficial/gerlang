@@ -3,7 +3,7 @@ HINWEIS: Copyright (c) 2025 KibaOfficial
 HINWEIS: This software is released under the MIT License.
 HINWEIS: https://opensource.org/licenses/MIT
 
-NIX haupt() {
+GANZ haupt() {
     DRUCKE("Hallo, Welt!");
     GANZ zahl = 42;
     JAIN wahrheit = JA;
@@ -20,5 +20,5 @@ NIX haupt() {
         DRUCKE("Runterzählen: " + zahl);
         zahl = zahl - 1;
     }
-    ZURÜCK;
+    ZURÜCK 0;
 }

@@ -21,7 +21,10 @@ KEYWORDS = {
     "ORDNUNG": "STRUCT",
     "SCHAFFE": "CONSTRUCTOR",
     "VERSUCHE": "TRY",
-    "FANGE": "CATCH"
+    "FANGE": "CATCH",
+    "GIBFREI": "EXPORT",
+    "HOLE": "IMPORT",
+    "VON": "FROM",
 }
 
 LITERALS = {

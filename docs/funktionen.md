@@ -31,16 +31,21 @@ GANZ fakultaet(n: GANZ) {
   }
   ZURÜCK n * fakultaet(n-1);
 }
+GANZ haupt() {
+  DRUCKE(fakultaet(5));
+  ZURÜCK 0;
+}
 ```
 
 ## Fehlerbehandlung in Funktionen
 ```gerlang
-NIX beispiel() {
+GANZ beispiel() {
   VERSUCHE() {
     GANZ x = 5 / 0;
   } FANGE fehler {
     DRUCKE("Fehler: " + fehler);
   }
+  ZURÜCK 0;
 }
 ```
 
