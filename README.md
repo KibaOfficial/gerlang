@@ -3,7 +3,7 @@
 > **Moderne deutschsprachige Programmiersprache** mit TypeScript-Style Fehlermeldungen, professioneller Entwicklererfahrung und vollständiger Turing-Vollständigkeit.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/Version-4.0.0-blue.svg)](docs/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-4.1.0-blue.svg)](docs/CHANGELOG.md)
 [![Language](https://img.shields.io/badge/Language-Python-green.svg)](https://python.org)
 
 ---

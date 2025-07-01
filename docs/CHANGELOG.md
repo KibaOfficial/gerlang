@@ -1,5 +1,34 @@
 # Changelog für GerLang
 
+## [4.1.0] – 2025-07-01
+### 🔧 Modularisierung & Code-Verbesserungen
+- **📦 Modularisierte Architektur:**
+  - Interpreter von 617 → 100 Zeilen reduziert (-84%)
+  - 5 neue spezialisierte Module für bessere Code-Organisation
+  - `environment.py` - Variablen-Scope Management
+  - `gerlang_builtins.py` - Zentralisierte Built-in Funktionen
+  - `statement_executor.py` - Statement-Ausführung
+  - `expression_evaluator.py` - Expression-Auswertung
+
+- **🧹 DRY-Prinzip umgesetzt:**
+  - Eliminierte Code-Duplikation
+  - Zentralisierte Built-in Funktionen
+  - Bessere Separation of Concerns
+
+- **🗂️ Code-Cleanup & Organisation:**
+  - Alte Dateien in `private/backup/` gesichert
+  - Verzeichnis-Struktur optimiert
+  - Vollständige Backup-Dokumentation
+
+- **✅ Funktionalität vollständig erhalten:**
+  - Alle V4.0 Features arbeiten unverändert
+  - 100% Rückwärts-Kompatibilität
+
+### 🎯 Vorteile:
+- Leichtere Erweiterung und Wartung
+- Besseres Debugging und Teamarbeit
+- Verbesserte Performance und Code-Qualität
+
 ## [4.0.0] – 2025-07-01
 ### 🚀 Major Features & Breaking Changes
 - **🛡️ TypeScript-Style Error Handling (VOLLSTÄNDIG):**

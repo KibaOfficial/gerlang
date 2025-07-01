@@ -1,78 +1,102 @@
-// GerLang v4.0.0 Feature-Demo - Alle neuen Features in einem Programm
+// ==============================
+// GerLang V4 - Feature Demo
+// Zeigt alle neuen Features der Version 4.0
+// ==============================
+
+// Import-System Demo
+HOLE fibonacci VON "examples/fibonacci.gerl";
+HOLE sayHello VON "examples/functions.gerl";
+
 GANZ haupt() {
-    DRUCKE("=== 🥨 GerLang v4.0.0 Feature-Demo ===");
-    DRUCKE("");
+    DRUCKE("🥨 GerLang V4.0 - Feature Demonstration");
+    DRUCKE("=====================================");
     
-    // 1. String-Interpolation
-    DRUCKE("📝 STRING-INTERPOLATION:");
-    WORT name = "Max";
-    GANZ alter = 25;
-    DRUCKE("Hallo ${name}, du bist ${alter} Jahre alt!");
-    DRUCKE("Nächstes Jahr wirst du ${alter + 1} sein.");
-    DRUCKE("");
+    // === 1. STRING-INTERPOLATION ===
+    DRUCKE("\n📝 1. String-Interpolation:");
+    WORT name = "GerLang";
+    GANZ version = 4;
+    KOMMA pi = 3.14159;
     
-    // 2. Math-Funktionen
-    DRUCKE("🔢 MATH-FUNKTIONEN:");
-    KOMMA wurzel_16 = WURZEL(16);
-    KOMMA potenz_2_3 = POTENZ(2, 3);
-    KOMMA betrag = ABS(-42);
-    KOMMA gerundet = RUNDEN(3.14159, 2);
+    DRUCKE("Willkommen zu ${name} Version ${version}!");
+    DRUCKE("Pi ist ungefähr ${pi}");
+    DRUCKE("Berechnung: 2 + 3 = ${2 + 3}");
     
-    DRUCKE("WURZEL(16) = ${wurzel_16}");
-    DRUCKE("POTENZ(2, 3) = ${potenz_2_3}");
-    DRUCKE("ABS(-42) = ${betrag}");
-    DRUCKE("RUNDEN(3.14159, 2) = ${gerundet}");
-    DRUCKE("");
+    // === 2. ERWEITERTE ARRAY-FUNKTIONEN ===
+    DRUCKE("\n📦 2. Array-Methoden:");
+    KISTE nummern = [1, 2, 3];
+    DRUCKE("Original Array: ${nummern}");
     
-    // 3. Zufallszahlen
-    DRUCKE("🎲 ZUFALLSZAHLEN:");
-    KOMMA zufall = ZUFALLSZAHL();
-    GANZ würfel1 = ZUFALLSBEREICH(1, 6);
-    GANZ würfel2 = ZUFALLSBEREICH(1, 6);
-    DRUCKE("Zufallszahl (0-1): ${zufall}");
-    DRUCKE("Würfel 1: ${würfel1}, Würfel 2: ${würfel2}");
-    DRUCKE("");
+    nummern.ERWEITERN(4);
+    DRUCKE("Nach ERWEITERN(4): ${nummern}");
     
-    // 4. Typ-Konvertierung
-    DRUCKE("🔄 TYP-KONVERTIERUNG:");
-    WORT zahl_text = "123";
-    GANZ konvertiert = ZU_GANZ(zahl_text);
-    WORT zurück_zu_text = ZU_WORT(konvertiert * 2);
-    DRUCKE("'${zahl_text}' als Zahl: ${konvertiert}");
-    DRUCKE("${konvertiert} * 2 als Text: '${zurück_zu_text}'");
-    DRUCKE("");
+    nummern.HINZUFÜGEN(0);
+    DRUCKE("Nach HINZUFÜGEN(0): ${nummern}");
+    DRUCKE("Array-Länge: ${nummern.LÄNGE}");
     
-    // 5. Arrays mit Methoden
-    DRUCKE("📊 ARRAYS & METHODEN:");
-    KISTE zahlen = [10, 20, 30];
-    zahlen.HINZUFÜGEN(40);
-    DRUCKE("Array: [${zahlen[0]}, ${zahlen[1]}, ${zahlen[2]}, ${zahlen[3]}]");
-    DRUCKE("Array-Länge: ${zahlen.LÄNGE}");
-    DRUCKE("");
+    // === 3. MATH-FUNKTIONEN ===
+    DRUCKE("\n🔢 3. Mathematische Funktionen:");
+    DRUCKE("Wurzel aus 16: ${WURZEL(16)}");
+    DRUCKE("2 hoch 8: ${POTENZ(2, 8)}");
+    DRUCKE("Betrag von -42: ${ABS(-42)}");
+    DRUCKE("3.7 gerundet: ${RUNDEN(3.7)}");
+    DRUCKE("Zufallszahl (1-100): ${ZUFALLSBEREICH(1, 100)}");
     
-    // 6. Fehlerbehandlung mit String-Interpolation
-    DRUCKE("🛡️ FEHLERBEHANDLUNG:");
+    // === 4. TYPE-CONVERSION ===
+    DRUCKE("\n🔄 4. Typ-Konvertierung:");
+    WORT zahl_als_text = "42";
+    GANZ konvertiert = ZU_GANZ(zahl_als_text);
+    DRUCKE("'${zahl_als_text}' als Zahl: ${konvertiert}");
+    
+    KOMMA komma_zahl = ZU_KOMMA("3.14");
+    DRUCKE("'3.14' als Kommazahl: ${komma_zahl}");
+    
+    // === 5. FEHLERBEHANDLUNG ===
+    DRUCKE("\n⚠️  5. Fehlerbehandlung:");
     VERSUCHE() {
-        GANZ result = 10 / 0;  // Division durch Null
-        DRUCKE("Das sollte nicht funktionieren: ${result}");
+        GANZ fehler = ZU_GANZ("keine_zahl");
+        DRUCKE("Dies wird nicht ausgeführt");
     } FANGE fehler {
-        DRUCKE("✅ Fehler erfolgreich abgefangen: ${fehler}");
+        DRUCKE("Fehler abgefangen: ${fehler}");
     }
-    DRUCKE("");
     
-    // 7. Komplexe Berechnungen
-    DRUCKE("🧮 KOMPLEXE BERECHNUNGEN:");
-    KOMMA radius = 5.0;
-    KOMMA kreisfläche = POTENZ(radius, 2) * 3.14159;
-    KOMMA umfang = 2 * 3.14159 * radius;
+    // === 6. FUNKTIONEN MIT RETURN-WERTEN ===
+    DRUCKE("\n🔧 6. Funktionen:");
+    GANZ fib_result = fibonacci(10);
+    DRUCKE("Fibonacci(10) = ${fib_result}");
     
-    DRUCKE("Kreis mit Radius ${radius}:");
-    DRUCKE("  Fläche: ${RUNDEN(kreisfläche, 2)}");
-    DRUCKE("  Umfang: ${RUNDEN(umfang, 2)}");
-    DRUCKE("");
+    sayHello("Welt");
     
-    DRUCKE("🎉 Alle v4.0.0 Features erfolgreich demonstriert!");
-    DRUCKE("✨ GerLang ist jetzt noch mächtiger und benutzerfreundlicher!");
+    // === 7. KONTROLLSTRUKTUREN ===
+    DRUCKE("\n🔄 7. Schleifen und Bedingungen:");
+    
+    // For-Loop
+    DRUCKE("Countdown:");
+    FÜR (GANZ i = 5; i > 0; i = i - 1) {
+        DRUCKE("${i}...");
+    }
+    DRUCKE("Start! 🚀");
+    
+    // While mit Bedingung
+    GANZ counter = 0;
+    SOLANGE (counter < 3) {
+        DRUCKE("Counter: ${counter}");
+        counter = counter + 1;
+    }
+    
+    // === 8. MEHRDIMENSIONALE ARRAYS ===
+    DRUCKE("\n📊 8. Mehrdimensionale Arrays:");
+    KISTE matrix = [[1, 2], [3, 4], [5, 6]];
+    DRUCKE("Matrix: ${matrix}");
+    DRUCKE("Element [1][0]: ${matrix[1][0]}");
+    
+    // Matrix durchlaufen
+    FÜR (GANZ row = 0; row < matrix.LÄNGE; row = row + 1) {
+        KISTE zeile = matrix[row];
+        DRUCKE("Zeile ${row}: ${zeile}");
+    }
+    
+    DRUCKE("\n✅ Feature-Demo abgeschlossen!");
+    DRUCKE("🎉 GerLang V4.0 funktioniert perfekt!");
     
     ZURÜCK 0;
 }

@@ -296,7 +296,7 @@ def info_command():
         safe_print(f"  {german:<12} -> {english}")
 
     safe_print(f"\nDateierweiterung: .gerl")
-    safe_print(f"Version: 4.0.0 (release)")
+    safe_print(f"Version: 4.1.0 (release)")
 
 def main():
     parser = argparse.ArgumentParser(
