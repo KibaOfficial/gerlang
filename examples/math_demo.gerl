@@ -1,0 +1,23 @@
+// Einfacher Test der neuen Math-Funktionen
+GANZ haupt() {
+    DRUCKE("=== Math-Funktionen Demo ===");
+    
+    // Test der Zufallszahlen
+    GANZ zufallszahl = ZUFALLSBEREICH(1, 10);
+    DRUCKE("Zufallszahl (1-10): " + zufallszahl);
+    
+    // Test der anderen Funktionen
+    KOMMA wurzel = WURZEL(25);
+    DRUCKE("Wurzel aus 25: " + wurzel);
+    
+    KOMMA potenz = POTENZ(3, 4);
+    DRUCKE("3 hoch 4: " + potenz);
+    
+    KOMMA betrag = ABS(-42);
+    DRUCKE("Betrag von -42: " + betrag);
+    
+    KOMMA gerundet = RUNDEN(3.7);
+    DRUCKE("3.7 gerundet: " + gerundet);
+    
+    ZURÜCK 0;
+}

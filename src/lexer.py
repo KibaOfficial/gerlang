@@ -90,6 +90,8 @@ class Lexer:
     self.advance()  # Anführungszeichen überspringen
 
     value = ""
+    has_interpolation = False
+    
     while self.current_char() and self.current_char() != quote_char:
       if self.current_char() == '\\': # Escape-Sequenz
         self.advance()
@@ -103,13 +105,25 @@ class Lexer:
           value += quote_char
         else:
           value += self.current_char()
+      elif self.current_char() == '$' and self.peek_char() == '{':
+        # Template-String erkannt
+        has_interpolation = True
+        value += self.current_char()  # $
+        self.advance()
+        value += self.current_char()  # {
       else:
         value += self.current_char()
       self.advance()
+    
     if self.current_char() == quote_char:
       self.advance()
     else:
       raise SyntaxError(f"Unterminated string at line {self.line}, column {self.column}")
+    
+    # Markiere als Template-String wenn Interpolation gefunden
+    if has_interpolation:
+        return ("TEMPLATE_STRING", value)
+    
     return value
 
   def read_number(self) -> str:
@@ -155,8 +169,13 @@ class Lexer:
       # Strings
       if self.current_char() in '"\'':
         line, col = self.line, self.column
-        string_value = self.read_string()
-        self.tokens.append(Token("STRING_LITERAL", string_value, line, col))
+        result = self.read_string()
+        
+        # Prüfe ob es ein Template-String ist
+        if isinstance(result, tuple) and result[0] == "TEMPLATE_STRING":
+            self.tokens.append(Token("TEMPLATE_STRING_LITERAL", result[1], line, col))
+        else:
+            self.tokens.append(Token("STRING_LITERAL", result, line, col))
         continue
       
       # Zahlen

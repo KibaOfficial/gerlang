@@ -1,0 +1,78 @@
+// GerLang v4.0.0 Feature-Demo - Alle neuen Features in einem Programm
+GANZ haupt() {
+    DRUCKE("=== 🥨 GerLang v4.0.0 Feature-Demo ===");
+    DRUCKE("");
+    
+    // 1. String-Interpolation
+    DRUCKE("📝 STRING-INTERPOLATION:");
+    WORT name = "Max";
+    GANZ alter = 25;
+    DRUCKE("Hallo ${name}, du bist ${alter} Jahre alt!");
+    DRUCKE("Nächstes Jahr wirst du ${alter + 1} sein.");
+    DRUCKE("");
+    
+    // 2. Math-Funktionen
+    DRUCKE("🔢 MATH-FUNKTIONEN:");
+    KOMMA wurzel_16 = WURZEL(16);
+    KOMMA potenz_2_3 = POTENZ(2, 3);
+    KOMMA betrag = ABS(-42);
+    KOMMA gerundet = RUNDEN(3.14159, 2);
+    
+    DRUCKE("WURZEL(16) = ${wurzel_16}");
+    DRUCKE("POTENZ(2, 3) = ${potenz_2_3}");
+    DRUCKE("ABS(-42) = ${betrag}");
+    DRUCKE("RUNDEN(3.14159, 2) = ${gerundet}");
+    DRUCKE("");
+    
+    // 3. Zufallszahlen
+    DRUCKE("🎲 ZUFALLSZAHLEN:");
+    KOMMA zufall = ZUFALLSZAHL();
+    GANZ würfel1 = ZUFALLSBEREICH(1, 6);
+    GANZ würfel2 = ZUFALLSBEREICH(1, 6);
+    DRUCKE("Zufallszahl (0-1): ${zufall}");
+    DRUCKE("Würfel 1: ${würfel1}, Würfel 2: ${würfel2}");
+    DRUCKE("");
+    
+    // 4. Typ-Konvertierung
+    DRUCKE("🔄 TYP-KONVERTIERUNG:");
+    WORT zahl_text = "123";
+    GANZ konvertiert = ZU_GANZ(zahl_text);
+    WORT zurück_zu_text = ZU_WORT(konvertiert * 2);
+    DRUCKE("'${zahl_text}' als Zahl: ${konvertiert}");
+    DRUCKE("${konvertiert} * 2 als Text: '${zurück_zu_text}'");
+    DRUCKE("");
+    
+    // 5. Arrays mit Methoden
+    DRUCKE("📊 ARRAYS & METHODEN:");
+    KISTE zahlen = [10, 20, 30];
+    zahlen.HINZUFÜGEN(40);
+    DRUCKE("Array: [${zahlen[0]}, ${zahlen[1]}, ${zahlen[2]}, ${zahlen[3]}]");
+    DRUCKE("Array-Länge: ${zahlen.LÄNGE}");
+    DRUCKE("");
+    
+    // 6. Fehlerbehandlung mit String-Interpolation
+    DRUCKE("🛡️ FEHLERBEHANDLUNG:");
+    VERSUCHE() {
+        GANZ result = 10 / 0;  // Division durch Null
+        DRUCKE("Das sollte nicht funktionieren: ${result}");
+    } FANGE fehler {
+        DRUCKE("✅ Fehler erfolgreich abgefangen: ${fehler}");
+    }
+    DRUCKE("");
+    
+    // 7. Komplexe Berechnungen
+    DRUCKE("🧮 KOMPLEXE BERECHNUNGEN:");
+    KOMMA radius = 5.0;
+    KOMMA kreisfläche = POTENZ(radius, 2) * 3.14159;
+    KOMMA umfang = 2 * 3.14159 * radius;
+    
+    DRUCKE("Kreis mit Radius ${radius}:");
+    DRUCKE("  Fläche: ${RUNDEN(kreisfläche, 2)}");
+    DRUCKE("  Umfang: ${RUNDEN(umfang, 2)}");
+    DRUCKE("");
+    
+    DRUCKE("🎉 Alle v4.0.0 Features erfolgreich demonstriert!");
+    DRUCKE("✨ GerLang ist jetzt noch mächtiger und benutzerfreundlicher!");
+    
+    ZURÜCK 0;
+}

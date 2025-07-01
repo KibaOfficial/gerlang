@@ -1,0 +1,56 @@
+// Verbessertes Zahlenraten mit neuen Math-Funktionen
+GANZ haupt() {
+    GANZ geheimzahl = ZUFALLSBEREICH(1, 100);
+    GANZ versuche = 0;
+    GANZ geraten = 0;
+    
+    DRUCKE("=== 🎯 Zahlenraten-Spiel ===");
+    DRUCKE("Ich denke an eine Zahl zwischen 1 und 100!");
+    DRUCKE("Tipp: Verwende die Hälfte als ersten Versuch! 🤔");
+    
+    SOLANGE (geraten != geheimzahl) {
+        WORT eingabe = LESE("Dein Tipp: ");
+        
+        VERSUCHE() {
+            geraten = ZU_GANZ(eingabe);  // Korrigierter Funktionsname
+            versuche = versuche + 1;
+            
+            GANZ differenz = ABS(geraten - geheimzahl);
+            
+            WENN (geraten == geheimzahl) {
+                DRUCKE("🎉 RICHTIG! Du hast ${versuche} Versuche gebraucht!");
+                
+                WENN (versuche <= 3) {
+                    DRUCKE("🏆 Fantastisch! Du bist ein Rätsel-Meister!");
+                } SONST WENN (versuche <= 6) {
+                    DRUCKE("👍 Gut gemacht!");
+                } SONST {
+                    DRUCKE("✅ Geschafft, aber da geht noch mehr!");
+                }
+            } SONST WENN (differenz <= 5) {
+                WENN (geraten < geheimzahl) {
+                    DRUCKE("🔥 Sehr nah dran! Etwas höher!");
+                } SONST {
+                    DRUCKE("🔥 Sehr nah dran! Etwas niedriger!");
+                }
+            } SONST WENN (differenz <= 15) {
+                WENN (geraten < geheimzahl) {
+                    DRUCKE("🎯 Warm! Höher!");
+                } SONST {
+                    DRUCKE("🎯 Warm! Niedriger!");
+                }
+            } SONST {
+                WENN (geraten < geheimzahl) {
+                    DRUCKE("❄️ Kalt! Viel höher!");
+                } SONST {
+                    DRUCKE("❄️ Kalt! Viel niedriger!");
+                }
+            }
+        } FANGE fehler {
+            DRUCKE("❌ Bitte eine gültige Zahl zwischen 1 und 100 eingeben!");
+        }
+    }
+    
+    DRUCKE("Auf Wiedersehen! 👋");
+    ZURÜCK 0;
+}

@@ -1,0 +1,93 @@
+// GerLang v4.0.0 Feature-Demo
+// Zeigt alle neuen Features der Version 4.0.0
+
+GANZ haupt() {
+    DRUCKE("🥨 === GerLang v4.0.0 Feature-Demo ===");
+    DRUCKE("");
+    
+    // 1. String-Interpolation
+    DRUCKE("🎨 1. String-Interpolation:");
+    WORT name = "Max Mustermann";
+    GANZ alter = 28;
+    DRUCKE("   Hallo ${name}!");
+    DRUCKE("   Du bist ${alter} Jahre alt.");
+    DRUCKE("   Nächstes Jahr wirst du ${alter + 1} sein.");
+    DRUCKE("");
+    
+    // 2. Math-Funktionen
+    DRUCKE("🔢 2. Math-Funktionen:");
+    KOMMA radius = 7.5;
+    KOMMA flaeche = POTENZ(radius, 2) * 3.14159;
+    DRUCKE("   Kreis mit Radius ${radius}cm:");
+    DRUCKE("   Fläche = ${RUNDEN(flaeche, 2)} cm²");
+    DRUCKE("   Wurzel aus 64 = ${WURZEL(64)}");
+    DRUCKE("   |−15| = ${ABS(-15)}");
+    DRUCKE("");
+    
+    // 3. Zufallszahlen
+    DRUCKE("🎲 3. Zufallszahlen:");
+    KOMMA zufall = ZUFALLSZAHL();
+    GANZ wuerfel1 = ZUFALLSBEREICH(1, 6);
+    GANZ wuerfel2 = ZUFALLSBEREICH(1, 6);
+    DRUCKE("   Zufallszahl: ${RUNDEN(zufall, 3)}");
+    DRUCKE("   Würfel 1: ${wuerfel1}, Würfel 2: ${wuerfel2}");
+    DRUCKE("   Summe: ${wuerfel1 + wuerfel2}");
+    DRUCKE("");
+    
+    // 4. Arrays mit Interpolation
+    DRUCKE("📊 4. Arrays & Methoden:");
+    KISTE zahlen = [10, 20, 30];
+    zahlen.ERWEITERN(40);
+    zahlen.HINZUFÜGEN(50);
+    DRUCKE("   Array: [${zahlen[0]}, ${zahlen[1]}, ${zahlen[2]}, ${zahlen[3]}, ${zahlen[4]}]");
+    DRUCKE("   Länge: ${zahlen.LÄNGE} Elemente");
+    DRUCKE("   Letztes Element: ${zahlen[zahlen.LÄNGE - 1]}");
+    DRUCKE("");
+    
+    // 5. Typ-Konvertierungen
+    DRUCKE("🔄 5. Typ-Konvertierungen:");
+    WORT zahl_text = "42";
+    GANZ konvertiert = ZU_GANZ(zahl_text);
+    KOMMA pi = 3.14159;
+    WORT pi_text = ZU_WORT(pi);
+    DRUCKE("   '${zahl_text}' → ${konvertiert} (GANZ)");
+    DRUCKE("   ${pi} → '${pi_text}' (WORT)");
+    DRUCKE("   ${pi} gerundet: ${RUNDEN(pi, 2)}");
+    DRUCKE("");
+    
+    // 6. Fehlerbehandlung mit Interpolation
+    DRUCKE("🛡️ 6. Fehlerbehandlung:");
+    VERSUCHE() {
+        GANZ test = ZU_GANZ("nicht_eine_zahl");
+    } FANGE fehler {
+        DRUCKE("   Fehler abgefangen: ${fehler}");
+    }
+    
+    VERSUCHE() {
+        KOMMA division = 10.0 / 0.0;
+    } FANGE fehler {
+        DRUCKE("   Division durch Null abgefangen!");
+    }
+    DRUCKE("");
+    
+    // 7. Interaktive Demo
+    DRUCKE("💬 7. Interaktive Eingabe:");
+    WORT benutzer_name = LESE("   Wie ist dein Name? ");
+    WORT lieblings_zahl = LESE("   Deine Lieblingszahl? ");
+    
+    VERSUCHE() {
+        GANZ zahl = ZU_GANZ(lieblings_zahl);
+        KOMMA quadrat = POTENZ(zahl, 2);
+        DRUCKE("   Hallo ${benutzer_name}! 👋");
+        DRUCKE("   ${zahl}² = ${quadrat}");
+        DRUCKE("   √${quadrat} = ${WURZEL(quadrat)}");
+    } FANGE fehler {
+        DRUCKE("   ${benutzer_name}, das war keine gültige Zahl! 😅");
+    }
+    
+    DRUCKE("");
+    DRUCKE("✅ Alle v4.0.0 Features demonstriert!");
+    DRUCKE("🚀 GerLang ist produktionsreif!");
+    
+    ZURÜCK 0;
+}

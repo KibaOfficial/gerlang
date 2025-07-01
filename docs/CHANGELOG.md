@@ -1,5 +1,59 @@
 # Changelog für GerLang
 
+## [4.0.0] – 2025-07-01
+### 🚀 Major Features & Breaking Changes
+- **🛡️ TypeScript-Style Error Handling (VOLLSTÄNDIG):**
+  - Präzise Positionsangaben für alle Runtime-Fehler (Zeile:Spalte)
+  - Farbige Fehlermeldungen mit Quellcode-Kontext und Caret-Zeiger (^)
+  - Error-Codes (GL001-GL999) für bessere Kategorisierung
+  - Call-Stack mit korrekten Aufrufpositionen
+  - Hilfreiche Tipps für häufige Fehler
+  - Vollständige AST-Node Positionserkennung implementiert
+
+- **🔢 Built-in Math-Funktionen (VOLLSTÄNDIG):**
+  - `WURZEL(zahl)` - Quadratwurzel berechnen
+  - `POTENZ(basis, exponent)` - Potenz berechnen (basis^exponent)
+  - `ABS(zahl)` - Absolutwert/Betrag
+  - `RUNDEN(zahl, nachkommastellen=0)` - Zahlen runden
+  - `ZUFALLSZAHL()` - Zufallszahl zwischen 0.0 und 1.0
+  - `ZUFALLSBEREICH(min, max)` - Ganzzahl im Bereich min-max
+
+- **🎨 String-Interpolation (VOLLSTÄNDIG):**
+  - Template-Strings mit `${variable}` und `${ausdruck}` Syntax
+  - Verschachtelte Expressions in Templates möglich
+  - Methoden-Aufrufe in Templates: `"Du hast ${liste.LÄNGE} Elemente"`
+  - Komplexe Ausdrücke: `"Nächstes Jahr: ${alter + 1}"`
+
+- **🔄 Erweiterte Typ-Konvertierung:**
+  - `ZU_WORT(wert)`, `ZU_GANZ(wert)`, `ZU_KOMMA(wert)` funktionieren robust
+  - Bessere Fehlerbehandlung bei ungültigen Konvertierungen
+### 🐛 Bugfixes
+- **Exception-Handling in CallExpression repariert:**
+  - Problem: ZU_GANZ und andere Built-ins wurden als "unbekannte Funktion" in VERSUCHE/FANGE-Blöcken gemeldet
+  - Ursache: CallExpression fing alle Exceptions ab, auch echte Ausführungsfehler
+  - Lösung: Unterscheidung zwischen "Funktion nicht gefunden" und "Ausführungsfehler"
+  - Jetzt werden korrekte Fehlermeldungen wie "Kann 'abc' nicht zu GANZ konvertieren" angezeigt
+- Runtime-Fehler zeigten immer Position 1:1 → Jetzt korrekte Zeile:Spalte
+- Import-Problem bei Exception-Behandlung behoben
+- AST-Node Konstruktoren hatten keine Positionsinformationen
+- Call-Stack zeigte falsche Aufrufpositionen
+
+### 💻 Entwicklererfahrung
+- Professionelle Fehlermeldungen auf TypeScript-Niveau
+- Debugging wird deutlich einfacher durch präzise Fehlerlokalisierung
+- Error-Handling ist jetzt vollständig und produktionsreif
+- Moderne Built-in Funktionen für praktische Programmierung
+- Template-Strings für elegante String-Formatierung
+
+### 📚 Dokumentation
+- SPRACHE.md um Built-in Funktionen und detaillierte Beispiele erweitert
+- Neue Math-Funktionen in allen relevanten Docs dokumentiert
+- Zahlenraten-Beispiel mit modernen Funktionen überarbeitet
+- README.md mit funktionierenden Anchor-Links und verbesserter Navigation
+- Alle Dokumentationsdateien professionell überarbeitet und modernisiert
+
+---
+
 ## [3.0.0] – 2025-06-28
 ### Major Features & Breaking Changes
 - **Modulsystem:**

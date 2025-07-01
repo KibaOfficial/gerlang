@@ -1,0 +1,14 @@
+HINWEIS: Mathematik-Modul Beispiel
+
+GANZ quadrat(x: GANZ) {
+    ZURÜCK x * x;
+}
+
+GANZ fakultät(n: GANZ) {
+    WENN (n <= 1) {
+        ZURÜCK 1;
+    }
+    ZURÜCK n * fakultät(n - 1);
+}
+
+GIBFREI quadrat, fakultät;

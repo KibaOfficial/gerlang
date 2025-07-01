@@ -1,0 +1,22 @@
+HINWEIS: Beispiel für erweiterte Features die noch implementiert werden könnten
+
+GANZ haupt() {
+    HINWEIS: Array-Operationen
+    KISTE zahlen = [1, 2, 3, 4, 5];
+    DRUCKE("Array-Länge: " + zahlen.LÄNGE);
+    
+    HINWEIS: Mehrdimensionale Arrays
+    KISTE matrix = [[1, 2], [3, 4]];
+    matrix[0][1] = 99;
+    DRUCKE("Matrix[0][1]: " + matrix[0][1]);
+    
+    HINWEIS: String-Operationen
+    WORT text = "Hallo Welt";
+    DRUCKE("Text-Länge: " + text.LÄNGE);
+    
+    HINWEIS: Benutzer-Input (falls LESE implementiert wird)
+    HINWEIS: WORT name = LESE("Wie heißt du? ");
+    HINWEIS: DRUCKE("Hallo " + name + "!");
+    
+    ZURÜCK 0;
+}

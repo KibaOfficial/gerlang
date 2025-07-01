@@ -1,5 +1,12 @@
-HINWEIS: Fibonacci-Test für Funktionen und Rekursion
+// Fibonacci-Funktion für Export
+GIBFREI GANZ fibonacci(n: GANZ) {
+  WENN (n < 2) {
+    ZURÜCK n;
+  }
+  ZURÜCK fibonacci(n-1) + fibonacci(n-2);
+}
 
+// Lokale Version für interne Tests
 GANZ fib(n: GANZ) {
   WENN (n < 2) {
     ZURÜCK n;
@@ -7,7 +14,7 @@ GANZ fib(n: GANZ) {
   ZURÜCK fib(n-1) + fib(n-2);
 }
 
-NIX haupt() {
+GANZ haupt() {
   DRUCKE("Fibonacci(10):");
   DRUCKE(fib(10));
   ZURÜCK 0;

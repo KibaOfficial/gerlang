@@ -4,14 +4,18 @@
 # https://opensource.org/licenses/MIT
 
 import os
+import math
+import random
 from parser import (
     Program, FunctionDeclaration, IfStatement, WhileStatement, ForStatement, BlockStatement, ReturnStatement,
     ExpressionStatement, VariableDeclaration, Expression, CallExpression, IdentifierExpression, LiteralExpression,
     BinaryExpression, UnaryExpression, AssignmentStatement, PrintStatement,
     ArrayLiteralExpression, ArrayAccessExpression, TryCatchStatement, PropertyAccessExpression, MethodCallExpression,
-    SetExpression, ExportDeclaration, ImportDeclaration, ExportListDeclaration
+    SetExpression, ExportDeclaration, ImportDeclaration, ExportListDeclaration, TemplateStringExpression
 )
 from lexer import Lexer
+from error_reporter import ErrorReporter, ErrorInfo, GerLangErrors
+from call_stack import CallStack, CallFrame, RuntimeError as GerLangRuntimeError
 
 class Environment:
     def __init__(self, parent=None):
@@ -27,7 +31,8 @@ class Environment:
         elif self.parent:
             self.parent.assign(name, value)
         else:
-            raise Exception(f"Variable '{name}' nicht definiert")
+            # Hier könnten wir später bessere Positionsinformationen hinzufügen
+            raise GerLangRuntimeError(f"Variable '{name}' nicht definiert")
 
     def get(self, name):
         if name in self.vars:
@@ -35,17 +40,21 @@ class Environment:
         elif self.parent:
             return self.parent.get(name)
         else:
-            raise Exception(f"Variable '{name}' nicht definiert")
+            # Hier könnten wir später bessere Positionsinformationen hinzufügen
+            raise GerLangRuntimeError(f"Variable '{name}' nicht definiert")
 
 class ReturnSignal(Exception):
     def __init__(self, value):
         self.value = value
 
 class Interpreter:
-    def __init__(self):
+    def __init__(self, current_file=None):
         self.globals = Environment()
         self.env = self.globals
         self.functions = {}
+        self.current_file = current_file  # Aktueller Dateipfad für relative Imports
+        self.error_reporter = ErrorReporter()
+        self.call_stack = CallStack()
 
         # Builtins definieren
         self.setup_builtins()
@@ -53,16 +62,24 @@ class Interpreter:
     def setup_builtins(self):
         """Definiert alle eingebauten Funktionen"""
         # DRUCKE/ZEIGE für Output
-        self.globals.define("DRUCKE", self._drucke_builtin)
-        self.globals.define("ZEIGE", self._drucke_builtin)
+        self.globals.define("DRUCKE", lambda *args: self._drucke_builtin(*args))
+        self.globals.define("ZEIGE", lambda *args: self._drucke_builtin(*args))
 
         # LESE für Input
-        self.globals.define("LESE", self._lese_builtin)
+        self.globals.define("LESE", lambda prompt="": self._lese_builtin(prompt))
 
         # Type conversion functions
-        self.globals.define("WORT", self._zu_wort)
-        self.globals.define("GANZ", self._zu_ganz)
-        self.globals.define("KOMMA", self._zu_komma)
+        self.globals.define("ZU_WORT", lambda value: self._zu_wort(value))
+        self.globals.define("ZU_GANZ", lambda value: self._zu_ganz(value))
+        self.globals.define("ZU_KOMMA", lambda value: self._zu_komma(value))
+        
+        # Math functions
+        self.globals.define("WURZEL", lambda value: self._wurzel(value))
+        self.globals.define("POTENZ", lambda base, exp: self._potenz(base, exp))
+        self.globals.define("ABS", lambda value: self._abs(value))
+        self.globals.define("RUNDEN", lambda value, digits=0: self._runden(value, digits))
+        self.globals.define("ZUFALLSZAHL", lambda: self._zufallszahl())
+        self.globals.define("ZUFALLSBEREICH", lambda min_val, max_val: self._zufallsbereich(min_val, max_val))
 
     def interpret(self, program: Program):
         """Interpretiert das gesamte Programm"""
@@ -85,15 +102,35 @@ class Interpreter:
 
         return None
 
-    def execute_function(self, name, args):
+    def execute_function(self, name, args, call_site_node=None):
         """Führt eine Funktion aus"""
         func = self.functions.get(name)
         if not func:
-            raise Exception(f"Funktion '{name}' nicht gefunden.")
+            raise GerLangRuntimeError(
+                f"Funktion '{name}' nicht gefunden",
+                self.current_file or "",
+                call_site_node.line if call_site_node else 1,
+                call_site_node.column if call_site_node else 1,
+                self.call_stack.get_stack_trace()
+            )
 
         # Parameter-Anzahl prüfen
         if len(args) != len(func.parameters):
-            raise Exception(f"Funktion '{name}' erwartet {len(func.parameters)} Argumente, {len(args)} gegeben")
+            raise GerLangRuntimeError(
+                f"Funktion '{name}' erwartet {len(func.parameters)} Argumente, {len(args)} gegeben",
+                self.current_file or "",
+                call_site_node.line if call_site_node else 1,
+                call_site_node.column if call_site_node else 1,
+                self.call_stack.get_stack_trace()
+            )
+
+        # Call-Stack Frame hinzufügen
+        self.call_stack.push(
+            name, 
+            self.current_file or "",
+            call_site_node.line if call_site_node and hasattr(call_site_node, 'line') else 1,
+            call_site_node.column if call_site_node and hasattr(call_site_node, 'column') else 1
+        )
 
         # Neue lokale Umgebung erstellen
         local_env = Environment(self.globals)
@@ -109,12 +146,16 @@ class Interpreter:
         try:
             self.execute(func.body)
             # Kein explizites Return -> None zurückgeben
-            return None
+            result = None
         except ReturnSignal as r:
-            return r.value
+            result = r.value
         finally:
-            # Umgebung immer wiederherstellen
+            # Call-Stack Frame entfernen
+            self.call_stack.pop()
+            # Umgebung zurücksetzen
             self.env = previous_env
+        
+        return result
 
     def execute(self, stmt):
         """Führt ein Statement aus"""
@@ -196,6 +237,7 @@ class Interpreter:
             except Exception as e:
                 if stmt.catch_var:
                     # Fehler-Variable im neuen Scope setzen
+                    # Verwende self.env als Parent, um Zugriff auf alle Variablen zu behalten
                     catch_env = Environment(self.env)
                     catch_env.define(stmt.catch_var, str(e))
                     previous_env = self.env
@@ -228,8 +270,13 @@ class Interpreter:
             # Importiere Funktionen/Variablen aus externer Datei
             module_path = stmt.module
             if not os.path.isabs(module_path):
-                # Relativ zum aktuellen Arbeitsverzeichnis auflösen
-                module_path = os.path.normpath(os.path.join(os.getcwd(), module_path))
+                # Relativ zur aktuellen Datei auflösen
+                if self.current_file:
+                    current_dir = os.path.dirname(self.current_file)
+                    module_path = os.path.normpath(os.path.join(current_dir, module_path))
+                else:
+                    # Fallback: relativ zum aktuellen Arbeitsverzeichnis
+                    module_path = os.path.normpath(os.path.join(os.getcwd(), module_path))
             if not os.path.exists(module_path):
                 raise Exception(f"Import-Modul nicht gefunden: {stmt.module}")
             with open(module_path, encoding="utf-8") as f:
@@ -293,13 +340,26 @@ class Interpreter:
         elif isinstance(expr, ArrayLiteralExpression):
             return [self.evaluate(el) for el in expr.elements]
 
+        elif isinstance(expr, TemplateStringExpression):
+            return self.evaluate_template_string(expr)
+
         elif isinstance(expr, ArrayAccessExpression):
             array = self.evaluate(expr.array)
             index = self.evaluate(expr.index)
             return array[index]
 
         elif isinstance(expr, IdentifierExpression):
-            return self.env.get(expr.name)
+            try:
+                return self.env.get(expr.name)
+            except GerLangRuntimeError as e:
+                # Füge Positionsinformationen hinzu
+                raise GerLangRuntimeError(
+                    e.message,
+                    self.current_file or "",
+                    expr.line,
+                    expr.column,
+                    self.call_stack.get_stack_trace()
+                )
 
         elif isinstance(expr, BinaryExpression):
             left = self.evaluate(expr.left)
@@ -317,7 +377,13 @@ class Interpreter:
                 return left * right
             elif expr.operator in ("/", "DIVIDE"):
                 if right == 0:
-                    raise Exception("Division durch Null")
+                    raise GerLangRuntimeError(
+                        "Division durch Null",
+                        self.current_file or "",
+                        expr.line,
+                        expr.column,
+                        self.call_stack.get_stack_trace()
+                    )
                 return left / right
             elif expr.operator in ("%", "MODULO"):
                 return left % right
@@ -360,21 +426,44 @@ class Interpreter:
             if isinstance(expr.function, IdentifierExpression):
                 func_name = expr.function.name
 
-                # Erst in Builtins suchen
+                # Erst in globalen Builtins suchen
+                try:
+                    func = self.globals.get(func_name)
+                    if callable(func):
+                        args = [self.evaluate(arg) for arg in expr.arguments]
+                        return func(*args)
+                except GerLangRuntimeError:
+                    # Variable nicht gefunden - weitersuchen
+                    pass
+                except Exception as e:
+                    # Ausführungsfehler in der Funktion - direkt weiterwerfen
+                    raise e
+
+                # Dann im aktuellen Environment suchen
                 try:
                     func = self.env.get(func_name)
                     if callable(func):
                         args = [self.evaluate(arg) for arg in expr.arguments]
                         return func(*args)
-                except Exception:
+                except GerLangRuntimeError:
+                    # Variable nicht gefunden - weitersuchen
                     pass
+                except Exception as e:
+                    # Ausführungsfehler in der Funktion - direkt weiterwerfen
+                    raise e
 
                 # Dann in benutzerdefinierten Funktionen
                 if func_name in self.functions:
                     args = [self.evaluate(arg) for arg in expr.arguments]
-                    return self.execute_function(func_name, args)
+                    return self.execute_function(func_name, args, expr)
 
-                raise Exception(f"Unbekannte Funktion: {func_name}")
+                raise GerLangRuntimeError(
+                    f"Unbekannte Funktion: {func_name}",
+                    self.current_file or "",
+                    expr.line,
+                    expr.column,
+                    self.call_stack.get_stack_trace()
+                )
             else:
                 # Komplexerer Funktionsausdruck
                 func = self.evaluate(expr.function)
@@ -461,3 +550,68 @@ class Interpreter:
             return float(value)
         except (ValueError, TypeError):
             raise Exception(f"Kann '{value}' nicht zu KOMMA konvertieren")
+
+    def _wurzel(self, value):
+        """Berechnet die Quadratwurzel"""
+        try:
+            if value < 0:
+                raise Exception("Wurzel aus negativer Zahl ist nicht erlaubt")
+            return math.sqrt(float(value))
+        except (ValueError, TypeError):
+            raise Exception(f"Kann WURZEL von '{value}' nicht berechnen")
+
+    def _potenz(self, base, exponent):
+        """Berechnet base^exponent"""
+        try:
+            return math.pow(float(base), float(exponent))
+        except (ValueError, TypeError):
+            raise Exception(f"Kann POTENZ({base}, {exponent}) nicht berechnen")
+
+    def _abs(self, value):
+        """Berechnet den Absolutwert"""
+        try:
+            return abs(float(value))
+        except (ValueError, TypeError):
+            raise Exception(f"Kann ABS von '{value}' nicht berechnen")
+
+    def _runden(self, value, digits=0):
+        """Rundet eine Zahl auf die angegebene Anzahl Nachkommastellen"""
+        try:
+            if digits == 0:
+                return round(float(value))
+            return round(float(value), int(digits))
+        except (ValueError, TypeError):
+            raise Exception(f"Kann '{value}' nicht runden")
+
+    def _zufallszahl(self):
+        """Gibt eine Zufallszahl zwischen 0.0 und 1.0 zurück"""
+        return random.random()
+
+    def _zufallsbereich(self, min_val, max_val):
+        """Gibt eine Zufallszahl im angegebenen Bereich zurück"""
+        try:
+            min_val = int(min_val)
+            max_val = int(max_val)
+            return random.randint(min_val, max_val)
+        except (ValueError, TypeError):
+            raise Exception(f"ZUFALLSBEREICH({min_val}, {max_val}) - ungültige Parameter")
+
+    def evaluate_template_string(self, expr: TemplateStringExpression):
+        """Evaluiert einen Template-String mit ${...} Interpolation"""
+        result = ""
+        
+        # Template-Format: part0 + expr0 + part1 + expr1 + ... + partN
+        for i in range(len(expr.expressions)):
+            # String-Teil vor der Expression
+            if i < len(expr.parts):
+                result += expr.parts[i]
+            
+            # Evaluiere die Expression und konvertiere zu String
+            expr_value = self.evaluate(expr.expressions[i])
+            result += str(expr_value)
+        
+        # Letzten String-Teil anhängen (falls vorhanden)
+        if len(expr.parts) > len(expr.expressions):
+            result += expr.parts[-1]
+        
+        return result

@@ -10,7 +10,14 @@ from lexer import Token
 # ===== AST NODE DEFINITIONS =====
 
 class ASTNode(ABC):
-    pass
+    def __init__(self):
+        self.line = 1
+        self.column = 1
+    
+    def set_position(self, line: int, column: int):
+        self.line = line
+        self.column = column
+        return self
 
 class Expression(ASTNode):
     pass
@@ -20,6 +27,7 @@ class Statement(ASTNode):
 
 class LiteralExpression(Expression):
     def __init__(self, value: Any, type_name: str):
+        super().__init__()
         self.value = value
         self.type_name = type_name
     def __repr__(self):
@@ -27,12 +35,14 @@ class LiteralExpression(Expression):
 
 class IdentifierExpression(Expression):
     def __init__(self, name: str):
+        super().__init__()
         self.name = name
     def __repr__(self):
         return f"Identifier({self.name})"
 
 class BinaryExpression(Expression):
     def __init__(self, left: Expression, operator: str, right: Expression):
+        super().__init__()
         self.left = left
         self.operator = operator
         self.right = right
@@ -41,6 +51,7 @@ class BinaryExpression(Expression):
 
 class UnaryExpression(Expression):
     def __init__(self, operator: str, operand: Expression):
+        super().__init__()
         self.operator = operator
         self.operand = operand
     def __repr__(self):
@@ -48,6 +59,7 @@ class UnaryExpression(Expression):
 
 class CallExpression(Expression):
     def __init__(self, function: Expression, arguments: List[Expression]):
+        super().__init__()
         self.function = function
         self.arguments = arguments
     def __repr__(self):
@@ -55,6 +67,7 @@ class CallExpression(Expression):
 
 class PropertyAccessExpression(Expression):
     def __init__(self, object_expr: Expression, property_name: str):
+        super().__init__()
         self.object_expr = object_expr
         self.property_name = property_name
     def __repr__(self):
@@ -62,6 +75,7 @@ class PropertyAccessExpression(Expression):
 
 class MethodCallExpression(Expression):
     def __init__(self, object_expr: Expression, method_name: str, arguments: List[Expression]):
+        super().__init__()
         self.object_expr = object_expr
         self.method_name = method_name
         self.arguments = arguments
@@ -144,12 +158,14 @@ class PrintStatement(Statement):
 
 class ArrayLiteralExpression(Expression):
     def __init__(self, elements: List[Expression]):
+        super().__init__()
         self.elements = elements
     def __repr__(self):
         return f"ArrayLiteral({self.elements})"
 
 class ArrayAccessExpression(Expression):
     def __init__(self, array: Expression, index: Expression):
+        super().__init__()
         self.array = array
         self.index = index
     def __repr__(self):
@@ -199,15 +215,27 @@ class ExportListDeclaration(Statement):
     def __repr__(self):
         return f"ExportList({self.names})"
 
+# NEW: TemplateStringExpression for string interpolation
+class TemplateStringExpression(Expression):
+    def __init__(self, parts: List, expressions: List[Expression]):
+        super().__init__()
+        self.parts = parts  # String-Teile zwischen den Variablen
+        self.expressions = expressions  # Ausdrücke für ${...}
+    def __repr__(self):
+        return f"TemplateString(parts={self.parts}, expressions={self.expressions})"
+
 # ===== PARSER =====
 
 class ParseError(Exception):
-    pass
+    def __init__(self, message: str, token: Token = None):
+        super().__init__(message)
+        self.token = token
 
 class Parser:
-    def __init__(self, tokens: List[Token]):
+    def __init__(self, tokens: List[Token], file_path: str = ""):
         self.tokens = tokens
         self.current = 0
+        self.file_path = file_path
 
     def is_at_end(self) -> bool:
         return self.peek().type == "EOF"
@@ -239,7 +267,14 @@ class Parser:
         if self.check(token_type):
             return self.advance()
         current_token = self.peek()
-        raise ParseError(f"{message} at line {current_token.line}, got '{current_token.value}'")
+        raise ParseError(f"{message} bei Zeile {current_token.line}, Spalte {current_token.column}. Erwartet: '{token_type}', gefunden: '{current_token.value}'", current_token)
+
+    def set_position(self, node: ASTNode, token: Token = None) -> ASTNode:
+        """Setzt Positionsinformationen für einen AST-Node"""
+        if token is None:
+            token = self.previous()
+        node.set_position(token.line, token.column)
+        return node
 
     def parse(self) -> Program:
         statements = []
@@ -344,10 +379,10 @@ class Parser:
         return self.tokens[-1]
 
     def assignment_statement(self):
-        name = self.consume("IDENTIFIER", "Expected variable name for assignment").value
-        self.consume("ASSIGN", "Expected '=' in assignment")
+        name = self.consume("IDENTIFIER", "Erwartete Variablennamen").value
+        self.consume("ASSIGN", "Erwartete '=' bei Zuweisung").value
         value = self.expression()
-        self.consume("SEMICOLON", "Expected ';' after assignment")
+        self.consume("SEMICOLON", "Erwartete ';' nach Zuweisung")
         return AssignmentStatement(name, value)
 
     def statement(self) -> Statement:
@@ -371,9 +406,9 @@ class Parser:
         expr = self.expression()
         if self.match("ASSIGN"):
             value = self.expression()
-            self.consume("SEMICOLON", "Expected ';' after assignment")
+            self.consume("SEMICOLON", "Erwartete ';' nach Zuweisung")
             return SetExpression(expr, value)
-        self.consume("SEMICOLON", "Expected ';' after expression")
+        self.consume("SEMICOLON", "Erwartete ';' nach Ausdruck")
         return ExpressionStatement(expr)
 
     # NEW: Print statement parser
@@ -467,62 +502,70 @@ class Parser:
     def oder_expression(self) -> Expression:
         expr = self.und_expression()
         while self.match("||", "ODER"):
-            operator = self.previous().value
+            operator_token = self.previous()
+            operator = operator_token.value
             right = self.und_expression()
-            expr = BinaryExpression(expr, operator, right)
+            expr = self.set_position(BinaryExpression(expr, operator, right), operator_token)
         return expr
 
     def und_expression(self) -> Expression:
         expr = self.equality()
         while self.match("&&", "UND"):
-            operator = self.previous().value
+            operator_token = self.previous()
+            operator = operator_token.value
             right = self.equality()
-            expr = BinaryExpression(expr, operator, right)
+            expr = self.set_position(BinaryExpression(expr, operator, right), operator_token)
         return expr
 
     def equality(self) -> Expression:
         expr = self.comparison()
         while self.match("==", "!="):
-            operator = self.previous().value
+            operator_token = self.previous()
+            operator = operator_token.value
             right = self.comparison()
-            expr = BinaryExpression(expr, operator, right)
+            expr = self.set_position(BinaryExpression(expr, operator, right), operator_token)
         return expr
 
     def comparison(self) -> Expression:
         expr = self.term()
         while self.match("GT", ">=", "LT", "<="):
-            operator = self.previous().value
+            operator_token = self.previous()
+            operator = operator_token.value
             right = self.term()
-            expr = BinaryExpression(expr, operator, right)
+            expr = self.set_position(BinaryExpression(expr, operator, right), operator_token)
         return expr
 
     def term(self) -> Expression:
         expr = self.factor()
         while self.match("MINUS", "PLUS"):
-            operator = self.previous().value
+            operator_token = self.previous()
+            operator = operator_token.value
             right = self.factor()
-            expr = BinaryExpression(expr, operator, right)
+            expr = self.set_position(BinaryExpression(expr, operator, right), operator_token)
         return expr
 
     def factor(self) -> Expression:
         expr = self.unary()
         while self.match("DIVIDE", "MULTIPLY", "MODULO"):
-            operator = self.previous().value
+            operator_token = self.previous()
+            operator = operator_token.value
             right = self.unary()
-            expr = BinaryExpression(expr, operator, right)
+            expr = self.set_position(BinaryExpression(expr, operator, right), operator_token)
         return expr
 
     def unary(self) -> Expression:
         if self.match("NOT", "MINUS"):
-            operator = self.previous().value
+            operator_token = self.previous()
+            operator = operator_token.value
             right = self.unary()
-            return UnaryExpression(operator, right)
+            return self.set_position(UnaryExpression(operator, right), operator_token)
         return self.call()
 
     def call(self) -> Expression:
         expr = self.primary()
         while True:
             if self.match("DOT"):
+                dot_token = self.previous()
                 method_or_property = self.consume("IDENTIFIER", "Expected property or method name after '.'").value
                 if self.match("LPAREN"):
                     # Methodenaufruf: obj.METHODE(...)
@@ -532,16 +575,19 @@ class Parser:
                         while self.match("COMMA"):
                             arguments.append(self.expression())
                     self.consume("RPAREN", "Expected ')' after arguments")
-                    expr = MethodCallExpression(expr, method_or_property, arguments)
+                    expr = self.set_position(MethodCallExpression(expr, method_or_property, arguments), dot_token)
                 else:
                     # Property-Access: obj.METHODE
-                    expr = PropertyAccessExpression(expr, method_or_property)
+                    expr = self.set_position(PropertyAccessExpression(expr, method_or_property), dot_token)
             elif self.match("LPAREN"):
-                expr = self.finish_call(expr)
+                paren_token = self.previous()
+                call_expr = self.finish_call(expr)
+                expr = self.set_position(call_expr, paren_token)
             elif self.match("LBRACKET"):  # Array-Zugriff
+                bracket_token = self.previous()
                 index = self.expression()
                 self.consume("RBRACKET", "Expected ']' after array index")
-                expr = ArrayAccessExpression(expr, index)
+                expr = self.set_position(ArrayAccessExpression(expr, index), bracket_token)
             else:
                 break
         return expr
@@ -557,36 +603,44 @@ class Parser:
 
     def primary(self) -> Expression:
         if self.match("LBRACKET"):  # Array-Literal
+            token = self.previous()
             elements = []
             if not self.check("RBRACKET"):
                 elements.append(self.expression())
                 while self.match("COMMA"):
                     elements.append(self.expression())
             self.consume("RBRACKET", "Expected ']' after array literal")
-            return ArrayLiteralExpression(elements)
+            return self.set_position(ArrayLiteralExpression(elements), token)
+        if self.match("TEMPLATE_STRING_LITERAL"):  # Template-String
+            token = self.previous()
+            return self.set_position(self.parse_template_string_literal(token.value), token)
         if self.match("BOOL_LITERAL"):
-            value = self.previous().value
+            token = self.previous()
+            value = token.value
             if value == "JA":
-                return LiteralExpression(True, "JAIN")
-            elif value == "NEIN":
-                return LiteralExpression(False, "JAIN")
-            elif value == "VIELLEICHT":
-                return LiteralExpression(None, "JAIN_TRISTATE")
+                return self.set_position(LiteralExpression(True, "BOOL"), token)
             else:
-                return LiteralExpression(value, "JAIN")
-        if self.match("INT_LITERAL"):
-            return LiteralExpression(int(self.previous().value), "GANZ")
-        if self.match("FLOAT_LITERAL"):
-            return LiteralExpression(float(self.previous().value), "KOMMA")
+                return self.set_position(LiteralExpression(False, "BOOL"), token)
         if self.match("STRING_LITERAL"):
-            return LiteralExpression(self.previous().value, "WORT")
+            token = self.previous()
+            return self.set_position(LiteralExpression(token.value, "STRING"), token)
+        if self.match("INT_LITERAL"):
+            token = self.previous()
+            return self.set_position(LiteralExpression(int(token.value), "INT"), token)
+        if self.match("FLOAT_LITERAL"):
+            token = self.previous()
+            return self.set_position(LiteralExpression(float(token.value), "FLOAT"), token)
         if self.match("IDENTIFIER"):
-            return IdentifierExpression(self.previous().value)
+            token = self.previous()
+            return self.set_position(IdentifierExpression(token.value), token)
         if self.match("LPAREN"):
             expr = self.expression()
             self.consume("RPAREN", "Expected ')' after expression")
             return expr
-        raise ParseError(f"Unexpected token '{self.peek().value}'")
+        
+        # Unerwartetes Token mit Position information
+        token = self.peek()
+        raise ParseError(f"Unexpected token '{token.value}'", token)
 
     def synchronize(self):
         self.advance()
@@ -611,6 +665,43 @@ class Parser:
         else:
             raise ParseError("Expected 'FANGE' after 'VERSUCHE'-Block")
         return TryCatchStatement(try_block, catch_var, catch_block)
+
+    def parse_template_string_literal(self, template_string: str) -> TemplateStringExpression:
+        """Parst einen Template-String-Literal in parts und expressions"""
+        import re
+        
+        parts = []
+        expressions = []
+        
+        # Finde alle ${...} Teile
+        pattern = r'\$\{([^}]+)\}'
+        last_end = 0
+        
+        for match in re.finditer(pattern, template_string):
+            # String-Teil vor der Expression
+            part_before = template_string[last_end:match.start()]
+            parts.append(part_before)
+            
+            # Expression-Inhalt parsen
+            expr_content = match.group(1)
+            
+            # Mini-Parser für die Expression
+            from lexer import Lexer
+            expr_lexer = Lexer(expr_content)
+            expr_tokens = expr_lexer.tokenize()
+            
+            # Erstelle einen Mini-Parser für die Expression
+            expr_parser = Parser(expr_tokens)
+            expr = expr_parser.expression()
+            expressions.append(expr)
+            
+            last_end = match.end()
+        
+        # Letzten String-Teil hinzufügen
+        final_part = template_string[last_end:]
+        parts.append(final_part)
+        
+        return TemplateStringExpression(parts, expressions)
 
 if __name__ == "__main__":
     import sys

@@ -1,11 +1,19 @@
-HINWEIS: Eine struckturelle idee wie funcktionen aussehen könnten
+// Exportierte Funktionen
+GIBFREI NIX sayHello(name: WORT) {
+    DRUCKE("Hallo, ${name}!");
+}
 
-GANZ add(a: GANZ, b: GANZ) {
+GIBFREI GANZ add(a: GANZ, b: GANZ) {
+    ZURÜCK a + b;
+}
+
+// Lokale Funktionen
+GANZ add_local(a: GANZ, b: GANZ) {
   ZURÜCK a+b;
 }
 
-NIX haupt() {
+GANZ haupt() {
   DRUCKE("Hallo, Welt!");
-  DRUCKE(add(1,2));
+  DRUCKE(add_local(1,2));
   ZURÜCK 0;
 }

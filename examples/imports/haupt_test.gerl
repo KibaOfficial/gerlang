@@ -1,0 +1,9 @@
+HINWEIS: Hauptprogramm das das Mathe-Modul verwendet
+
+HOLE quadrat, fakultät VON "mathe.gerl";
+
+GANZ haupt() {
+    DRUCKE("5 zum Quadrat: " + quadrat(5));
+    DRUCKE("Fakultät von 5: " + fakultät(5));
+    ZURÜCK 0;
+}
